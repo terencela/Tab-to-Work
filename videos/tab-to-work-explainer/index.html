@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Tab-to-Work Explainer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Hanken+Grotesk:wght@400;600&family=Newsreader:ital@0;1&display=block"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f0ebde;
+        font-family: "Hanken Grotesk", system-ui, sans-serif;
+        color: #1f2be0;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+
+      .clip {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      .grid-bg {
+        position: absolute;
+        inset: 0;
+        background-color: #f0ebde;
+        background-image:
+          linear-gradient(rgba(31, 43, 224, 0.1) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(31, 43, 224, 0.1) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      .hairline-top,
+      .hairline-bottom {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        height: 2px;
+        background: #1f2be0;
+        z-index: 5;
+      }
+
+      .hairline-top {
+        top: 48px;
+      }
+
+      .hairline-bottom {
+        bottom: 48px;
+      }
+
+      .chrome {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        bottom: 64px;
+        display: flex;
+        justify-content: space-between;
+        font-family: "DM Mono", monospace;
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        z-index: 6;
+      }
+
+      .display {
+        font-family: "Newsreader", serif;
+        font-weight: 400;
+        line-height: 0.95;
+        letter-spacing: -0.01em;
+      }
+
+      .hero-xl {
+        font-size: 148px;
+      }
+
+      .hero-lg {
+        font-size: 108px;
+      }
+
+      .hero-md {
+        font-size: 72px;
+      }
+
+      .label {
+        font-family: "DM Mono", monospace;
+        font-size: 16px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .body {
+        font-size: 34px;
+        line-height: 1.45;
+        max-width: 980px;
+      }
+
+      .center-stage {
+        position: absolute;
+        inset: 120px 80px 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        z-index: 2;
+      }
+
+      .pixel-glitch {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 280px;
+        height: 100%;
+        background: repeating-linear-gradient(
+          90deg,
+          #1f2be0 0 2px,
+          transparent 2px 8px
+        );
+        opacity: 0.18;
+        z-index: 1;
+      }
+
+      .tab-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 22px;
+        border: 2px solid rgba(31, 43, 224, 0.35);
+        background: rgba(240, 235, 222, 0.92);
+        font-family: "DM Mono", monospace;
+        font-size: 18px;
+        margin: 8px;
+      }
+
+      .tab-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #1f2be0;
+      }
+
+      .tab-stack {
+        display: flex;
+        flex-wrap: wrap;
+        max-width: 1200px;
+      }
+
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        width: 100%;
+      }
+
+      .panel {
+        border: 2px solid rgba(31, 43, 224, 0.35);
+        padding: 36px;
+        min-height: 420px;
+        background: rgba(240, 235, 222, 0.88);
+      }
+
+      .panel h3 {
+        font-family: "DM Mono", monospace;
+        font-size: 16px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+
+      .url-line {
+        font-family: "DM Mono", monospace;
+        font-size: 18px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(31, 43, 224, 0.15);
+      }
+
+      .ghost-box {
+        height: 54px;
+        margin: 10px 0;
+        border: 1px dashed rgba(31, 43, 224, 0.25);
+        display: grid;
+        place-items: center;
+        font-family: "DM Mono", monospace;
+        font-size: 14px;
+        color: rgba(31, 43, 224, 0.45);
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        width: 100%;
+      }
+
+      .step {
+        border: 2px solid #1f2be0;
+        padding: 32px 28px;
+        min-height: 360px;
+        background: rgba(240, 235, 222, 0.92);
+      }
+
+      .step-num {
+        font-family: "DM Mono", monospace;
+        font-size: 14px;
+        letter-spacing: 0.16em;
+        margin-bottom: 18px;
+      }
+
+      .step h3 {
+        font-family: "Newsreader", serif;
+        font-size: 52px;
+        margin-bottom: 16px;
+      }
+
+      .step p {
+        font-size: 24px;
+        line-height: 1.4;
+      }
+
+      .goal-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        width: 100%;
+      }
+
+      .goal-card {
+        border: 2px solid #1f2be0;
+        padding: 28px;
+        min-height: 220px;
+        background: rgba(240, 235, 222, 0.92);
+      }
+
+      .goal-card strong {
+        display: block;
+        font-family: "Newsreader", serif;
+        font-size: 42px;
+        margin-bottom: 12px;
+      }
+
+      .goal-card span {
+        font-size: 22px;
+        line-height: 1.35;
+      }
+
+      .cta-lockup {
+        text-align: center;
+        width: 100%;
+      }
+
+      .cta-lockup .hero-lg {
+        margin-bottom: 18px;
+      }
+
+      .cta-lockup .label {
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="55"
+    >
+      <section id="scene-1" class="clip" data-start="0" data-duration="8" data-track-index="1">
+        <div class="grid-bg"></div>
+        <div class="hairline-top"></div>
+        <div class="hairline-bottom"></div>
+        <div class="chrome"><span>tab overload</span><span>01 / 06</span></div>
+        <div class="pixel-glitch"></div>
+        <div class="center-stage">
+          <div class="label" id="s1-label">The problem</div>
+          <div class="display hero-xl" id="s1-num">47</div>
+          <div class="display hero-md" id="s1-title">tabs open</div>
+          <div class="tab-stack" id="s1-tabs">
+            <div class="tab-pill"><span class="tab-dot"></span>flights</div>
+            <div class="tab-pill"><span class="tab-dot"></span>hotels</div>
+            <div class="tab-pill"><span class="tab-dot"></span>docs</div>
+            <div class="tab-pill"><span class="tab-dot"></span>slack</div>
+            <div class="tab-pill"><span class="tab-dot"></span>notion</div>
+            <div class="tab-pill"><span class="tab-dot"></span>github</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-2" class="clip" data-start="8" data-duration="10" data-track-index="1">
+        <div class="grid-bg"></div>
+        <div class="hairline-top"></div>
+        <div class="hairline-bottom"></div>
+        <div class="chrome"><span>tab savers</span><span>02 / 06</span></div>
+        <div class="center-stage">
+          <div class="label" id="s2-label">What exists today</div>
+          <div class="compare" id="s2-compare">
+            <div class="panel">
+              <h3>OneTab / Tab Space</h3>
+              <div class="url-line">booking.com/kyoto-hotel</div>
+              <div class="url-line">google.com/flights</div>
+              <div class="url-line">notion.so/project-brief</div>
+              <div class="url-line">github.com/pull/142</div>
+            </div>
+            <div class="panel">
+              <h3>What's missing</h3>
+              <div class="ghost-box">page summary</div>
+              <div class="ghost-box">goal context</div>
+              <div class="ghost-box">chat memory</div>
+              <div class="ghost-box">work output</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-3" class="clip" data-start="18" data-duration="10" data-track-index="1">
+        <div class="grid-bg"></div>
+        <div class="hairline-top"></div>
+        <div class="hairline-bottom"></div>
+        <div class="chrome"><span>the shift</span><span>03 / 06</span></div>
+        <div class="pixel-glitch"></div>
+        <div class="center-stage">
+          <div class="label" id="s3-label">Next evolution</div>
+          <div class="display hero-lg" id="s3-line1">Not URLs.</div>
+          <div class="display hero-lg" id="s3-line2"><em>Intent.</em></div>
+          <p class="body" id="s3-body">What you were working on. What you decided. What still needs doing.</p>
+        </div>
+      </section>
+
+      <section id="scene-4" class="clip" data-start="28" data-duration="12" data-track-index="1">
+        <div class="grid-bg"></div>
+        <div class="hairline-top"></div>
+        <div class="hairline-bottom"></div>
+        <div class="chrome"><span>how it works</span><span>04 / 06</span></div>
+        <div class="center-stage">
+          <div class="label" id="s4-label">Tab to Work</div>
+          <div class="pipeline" id="s4-pipeline">
+            <div class="step" id="s4-step1">
+              <div class="step-num">01</div>
+              <h3>Save</h3>
+              <p>One click. Tabs close instantly.</p>
+            </div>
+            <div class="step" id="s4-step2">
+              <div class="step-num">02</div>
+              <h3>Understand</h3>
+              <p>Summaries + goal tags on every tab.</p>
+            </div>
+            <div class="step" id="s4-step3">
+              <div class="step-num">03</div>
+              <h3>Execute</h3>
+              <p>Agent delivers the work product.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-5" class="clip" data-start="40" data-duration="10" data-track-index="1">
+        <div class="grid-bg"></div>
+        <div class="hairline-top"></div>
+        <div class="hairline-bottom"></div>
+        <div class="chrome"><span>your goals</span><span>05 / 06</span></div>
+        <div class="center-stage">
+          <div class="label" id="s5-label">Active goals</div>
+          <div class="goal-grid" id="s5-goals">
+            <div class="goal-card" id="s5-g1">
+              <strong>Japan trip</strong>
+              <span>18 tabs ranked and summarized</span>
+            </div>
+            <div class="goal-card" id="s5-g2">
+              <strong>Client deck</strong>
+              <span>Research pulled into brief</span>
+            </div>
+            <div class="goal-card" id="s5-g3">
+              <strong>Agency pipeline</strong>
+              <span>Leads extracted and compared</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-6" class="clip" data-start="50" data-duration="5" data-track-index="1">
+        <div class="grid-bg"></div>
+        <div class="hairline-top"></div>
+        <div class="hairline-bottom"></div>
+        <div class="chrome"><span>tab to work</span><span>06 / 06</span></div>
+        <div class="pixel-glitch"></div>
+        <div class="center-stage cta-lockup">
+          <div class="display hero-lg" id="s6-title">Tab to Work</div>
+          <div class="label" id="s6-tag">From tab chaos to work done</div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      tl.from("#s1-label", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 0.2)
+        .from("#s1-num", { opacity: 0, scale: 0.8, duration: 0.7, ease: "back.out(1.4)" }, 0.5)
+        .from("#s1-title", { opacity: 0, y: 24, duration: 0.6, ease: "power2.out" }, 0.9)
+        .from("#s1-tabs .tab-pill", { opacity: 0, y: 16, duration: 0.35, stagger: 0.08, ease: "power2.out" }, 1.4);
+
+      tl.from("#s2-label", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 8.2)
+        .from("#s2-compare .panel", { opacity: 0, x: -30, duration: 0.7, stagger: 0.15, ease: "power2.out" }, 8.6)
+        .from("#s2-compare .url-line, #s2-compare .ghost-box", { opacity: 0, duration: 0.25, stagger: 0.05 }, 9.3);
+
+      tl.from("#s3-label", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 18.2)
+        .from("#s3-line1", { opacity: 0, y: 30, duration: 0.6, ease: "power2.out" }, 18.6)
+        .from("#s3-line2", { opacity: 0, y: 30, duration: 0.6, ease: "power2.out" }, 19.2)
+        .from("#s3-body", { opacity: 0, y: 20, duration: 0.6, ease: "power2.out" }, 19.9);
+
+      tl.from("#s4-label", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 28.2)
+        .from("#s4-step1", { opacity: 0, y: 28, duration: 0.55, ease: "power2.out" }, 28.7)
+        .from("#s4-step2", { opacity: 0, y: 28, duration: 0.55, ease: "power2.out" }, 29.3)
+        .from("#s4-step3", { opacity: 0, y: 28, duration: 0.55, ease: "power2.out" }, 29.9);
+
+      tl.from("#s5-label", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 40.2)
+        .from("#s5-g1", { opacity: 0, y: 24, duration: 0.5, ease: "power2.out" }, 40.7)
+        .from("#s5-g2", { opacity: 0, y: 24, duration: 0.5, ease: "power2.out" }, 41.2)
+        .from("#s5-g3", { opacity: 0, y: 24, duration: 0.5, ease: "power2.out" }, 41.7);
+
+      tl.from("#s6-title", { opacity: 0, scale: 0.92, duration: 0.7, ease: "power2.out" }, 50.2)
+        .from("#s6-tag", { opacity: 0, y: 16, duration: 0.5, ease: "power2.out" }, 50.8);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

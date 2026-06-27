@@ -1,0 +1,15 @@
+Tab-to-Work — Goal-Aware Tab Intelligence
+
+The problem: Knowledge workers keep 30-100 tabs open because closing them feels like losing work. OneTab and Tab Space save URLs and titles. That helps with tab panic but not context amnesia. You still cannot chat with your research, see what was on each page, or organize tabs by what you are actually trying to accomplish.
+
+The evolution: Tab savers store WHERE you were. The next product stores WHAT you were working on and delivers the work product.
+
+Tab-to-Work flow:
+1. One click — all tabs save and close instantly (OneTab speed)
+2. Silent intelligence — each tab gets a summary; session auto-tags to your active goals
+3. Chat — ask "what hotels did I look at?" across saved sessions
+4. Execute — agent extracts prices, compares options, produces the artifact
+
+The unit of value shifts from tab to intent. You state a goal. You browse. One click. The agent finishes the job.
+
+Tagline: From tab chaos to work done.

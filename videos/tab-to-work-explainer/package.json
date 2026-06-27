@@ -1,0 +1,15 @@
+{
+  "name": "tab-to-work-explainer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.7.15 preview",
+    "check": "npx --yes hyperframes@0.7.15 lint && npx --yes hyperframes@0.7.15 validate && npx --yes hyperframes@0.7.15 inspect",
+    "render": "node ./scripts/render.mjs",
+    "publish": "npx --yes hyperframes@0.7.15 publish"
+  },
+  "devDependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2"
+  }
+}
