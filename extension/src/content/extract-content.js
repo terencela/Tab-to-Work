@@ -1,41 +1,38 @@
 /**
- * Runs in page context via scripting.executeScript.
- * Returns readable excerpt for classification and future summarization.
+ * Injected via scripting.executeScript — return value is read by the extension.
  */
-(function extractPageContent() {
-  const SKIP = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "SVG", "NAV", "FOOTER", "HEADER"]);
-
+function extractPageContent() {
   function textOf(el) {
-    return (el?.innerText ?? el?.textContent ?? "").replace(/\s+/g, " ").trim();
+    if (!el) return "";
+    return (el.innerText ?? el.textContent ?? "").replace(/\s+/g, " ").trim();
   }
 
-  const root =
-    document.querySelector("article") ??
-    document.querySelector("main") ??
-    document.querySelector('[role="main"]') ??
-    document.body;
+  const candidates = [
+    document.querySelector("article"),
+    document.querySelector("main"),
+    document.querySelector('[role="main"]'),
+    document.getElementById("content"),
+    document.body,
+  ].filter(Boolean);
 
-  let excerpt = "";
-  if (root) {
-    const parts = [];
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
-    let node = walker.currentNode;
-    while (node) {
-      if (!SKIP.has(node.nodeName)) {
-        const t = textOf(node);
-        if (t.length > 40) parts.push(t);
-      }
-      node = walker.nextNode();
+  let best = document.body;
+  let bestLen = 0;
+  for (const el of candidates) {
+    const len = textOf(el).length;
+    if (len > bestLen) {
+      bestLen = len;
+      best = el;
     }
-    excerpt = parts.slice(0, 6).join(" ").slice(0, 1200);
   }
 
-  if (!excerpt) excerpt = textOf(root).slice(0, 1200);
-
+  const excerpt = textOf(best).slice(0, 1200);
   const words = excerpt.split(/\s+/).filter(Boolean);
+
   return {
-    title: document.title,
+    title: document.title || "",
     excerpt,
     wordCount: words.length,
   };
-})();
+}
+
+extractPageContent();

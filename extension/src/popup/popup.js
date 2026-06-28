@@ -1,5 +1,6 @@
 import { api } from "../lib/api.js";
 import { getGoals, getSessions, getSettings, saveSettings } from "../lib/storage.js";
+import { sendMessage } from "../lib/messages.js";
 
 const tabCountEl = document.getElementById("tab-count");
 const goalCountEl = document.getElementById("goal-count");
@@ -7,6 +8,17 @@ const saveBtn = document.getElementById("save-btn");
 const closeAfterEl = document.getElementById("close-after");
 const statusEl = document.getElementById("status");
 const sessionListEl = document.getElementById("session-list");
+const optionsLink = document.getElementById("options-link");
+
+optionsLink.href = api.runtime.getURL("src/options/options.html");
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function setStatus(text, isError = false) {
   statusEl.hidden = !text;
@@ -29,10 +41,10 @@ function renderSessions(sessions) {
     const li = document.createElement("li");
     li.className = "session-item";
     const pills = Object.entries(session.goalBreakdown ?? {})
-      .map(([name, n]) => `<span class="pill">${name} ${n}</span>`)
+      .map(([name, n]) => `<span class="pill">${escapeHtml(name)} ${n}</span>`)
       .join("");
     li.innerHTML = `
-      <strong>${session.title}</strong>
+      <strong>${escapeHtml(session.title)}</strong>
       <span>${session.tabs.length} tabs · ${formatDate(session.createdAt)}</span>
       <div class="goal-pills">${pills}</div>
     `;
@@ -50,8 +62,8 @@ async function refresh() {
   goalCountEl.textContent = String(goals.filter((g) => g.active).length);
   renderSessions(sessions);
 
-  const res = await api.runtime.sendMessage({ type: "GET_TAB_COUNT" });
-  tabCountEl.textContent = String(res?.count ?? 0);
+  const res = await sendMessage({ type: "GET_TAB_COUNT" });
+  tabCountEl.textContent = res?.count !== undefined ? String(res.count) : "—";
 }
 
 closeAfterEl.addEventListener("change", async () => {
@@ -62,11 +74,14 @@ saveBtn.addEventListener("click", async () => {
   saveBtn.disabled = true;
   setStatus("Extracting tabs…");
   try {
-    const res = await api.runtime.sendMessage({
+    const res = await sendMessage({
       type: "SAVE_SESSION",
       closeTabs: closeAfterEl.checked,
     });
-    if (!res?.ok) throw new Error(res?.error ?? "Save failed");
+    if (!res) {
+      throw new Error("Extension background did not respond. Reload the extension and try again.");
+    }
+    if (!res.ok) throw new Error(res.error ?? "Save failed");
     const closed = res.closed ? ` Closed ${res.closed} tabs.` : "";
     setStatus(`Saved ${res.session.tabs.length} tabs.${closed}`);
     await refresh();

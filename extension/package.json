@@ -1,0 +1,8 @@
+{
+  "name": "tab-to-work-extension",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate.mjs"
+  }
+}

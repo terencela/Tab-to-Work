@@ -6,28 +6,16 @@ import {
   classifyTab,
 } from "./goals.js";
 import { getGoals, getSettings, saveSession } from "./storage.js";
+import { isSavableUrl } from "./urls.js";
 
-const SKIP_PREFIXES = [
-  "chrome://",
-  "chrome-extension://",
-  "edge://",
-  "about:",
-  "devtools://",
-  "safari-extension://",
-  "safari-web-extension://",
-];
-
-function isSavableUrl(url) {
-  if (!url) return false;
-  return !SKIP_PREFIXES.some((p) => url.startsWith(p));
-}
+const EXTRACT_CONCURRENCY = 4;
 
 /**
  * @param {import('./types.js').Goal[]} goals
  */
 async function extractTab(tab, goals) {
   /** @type {import('./types.js').TabCapture} */
-  let capture = {
+  const capture = {
     tabId: tab.id ?? 0,
     url: tab.url ?? "",
     title: tab.title ?? "Untitled",
@@ -41,18 +29,26 @@ async function extractTab(tab, goals) {
     return capture;
   }
 
+  if (tab.id === undefined) {
+    capture.excerpt = capture.url;
+    return capture;
+  }
+
   try {
-    const [{ result }] = await api.scripting.executeScript({
+    const results = await api.scripting.executeScript({
       target: { tabId: tab.id },
       files: ["src/content/extract-content.js"],
     });
-    if (result) {
-      capture.excerpt = result.excerpt ?? "";
-      capture.wordCount = result.wordCount ?? 0;
-      if (result.title) capture.title = result.title;
+    const result = results?.[0]?.result;
+    if (result && typeof result === "object") {
+      capture.excerpt = String(result.excerpt ?? "");
+      capture.wordCount = Number(result.wordCount ?? 0);
+      if (result.title) capture.title = String(result.title);
+    } else {
+      capture.excerpt = capture.url;
     }
   } catch {
-    capture.excerpt = tab.url;
+    capture.excerpt = capture.url;
   }
 
   const match = classifyTab(capture, goals);
@@ -62,6 +58,22 @@ async function extractTab(tab, goals) {
   return capture;
 }
 
+async function mapWithConcurrency(items, limit, fn) {
+  const results = new Array(items.length);
+  let index = 0;
+
+  async function worker() {
+    while (index < items.length) {
+      const i = index++;
+      results[i] = await fn(items[i], i);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
+
 /**
  * @returns {Promise<{ session: import('./types.js').Session, closed: number }>}
  */
@@ -69,18 +81,17 @@ export async function saveCurrentSession({ closeTabs } = {}) {
   const [settings, goals] = await Promise.all([getSettings(), getGoals()]);
   const shouldClose = closeTabs ?? settings.closeAfterSave;
 
-  const query = settings.allWindows ? { currentWindow: false } : { currentWindow: true };
-  const rawTabs = await api.tabs.query(query);
-  const tabs = rawTabs.filter((t) => t.url && isSavableUrl(t.url) && !t.discarded);
+  const query = settings.allWindows ? {} : { currentWindow: true };
+  const rawTabs = await api.tabs.query({ ...query, discarded: false });
+  const tabs = rawTabs.filter((t) => t.url && isSavableUrl(t.url));
 
   if (!tabs.length) {
-    throw new Error("No savable tabs in this window.");
+    throw new Error("No savable tabs found. Open some web pages first.");
   }
 
-  const captures = [];
-  for (const tab of tabs) {
-    captures.push(await extractTab(tab, goals));
-  }
+  const captures = await mapWithConcurrency(tabs, EXTRACT_CONCURRENCY, (tab) =>
+    extractTab(tab, goals),
+  );
 
   const session = {
     id: uid(),
@@ -105,11 +116,22 @@ export async function saveCurrentSession({ closeTabs } = {}) {
   return { session, closed };
 }
 
+export async function countSavableTabs(windowId) {
+  const query = windowId !== undefined ? { windowId, discarded: false } : { currentWindow: true, discarded: false };
+  const tabs = await api.tabs.query(query);
+  return tabs.filter((t) => isSavableUrl(t.url ?? "")).length;
+}
+
 export async function updateBadge() {
-  const tabs = await api.tabs.query({ currentWindow: true, discarded: false });
-  const count = tabs.filter((t) => isSavableUrl(t.url ?? "")).length;
-  const text = count > 99 ? "99+" : count > 0 ? String(count) : "";
-  await api.action.setBadgeText({ text });
-  await api.action.setBadgeBackgroundColor({ color: "#00ff88" });
-  await api.action.setBadgeTextColor({ color: "#090909" });
+  try {
+    const count = await countSavableTabs();
+    const text = count > 99 ? "99+" : count > 0 ? String(count) : "";
+    await api.action.setBadgeText({ text });
+    await api.action.setBadgeBackgroundColor({ color: "#00ff88" });
+    if (api.action.setBadgeTextColor) {
+      await api.action.setBadgeTextColor({ color: "#090909" });
+    }
+  } catch (err) {
+    console.warn("[Tab to Work] badge update failed", err);
+  }
 }

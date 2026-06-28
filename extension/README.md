@@ -13,10 +13,22 @@ One-click tab save with **content extraction** and **goal-based classification**
 
 ## Load in Chrome
 
-1. Open `chrome://extensions`
-2. Enable **Developer mode**
-3. **Load unpacked** → select the `extension/` folder
-4. Pin **Tab to Work** to the toolbar
+1. Validate package: `npm run validate`
+2. Open `chrome://extensions`
+3. Enable **Developer mode**
+4. **Load unpacked** → select the `extension/` folder
+5. Pin **Tab to Work** to the toolbar
+
+### Quick test
+
+1. Open 3–5 normal websites (not `chrome://` pages)
+2. Click the extension icon — tab count should match
+3. Click **Save all tabs**
+4. Status should say `Saved N tabs`
+5. Open **All** → sessions page shows excerpts + goal tags
+6. Optional: check **Close tabs after save**, save again — tabs should close
+
+If save fails on a page, that tab still saves with URL-only fallback (PDFs, restricted pages).
 
 ## Load in Safari (macOS)
 
