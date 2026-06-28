@@ -3,327 +3,451 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1080, height=1920">
-    <title>Tab-to-Work — Hook Cut</title>
+    <title>Tab-to-Work — Motion Cut v3</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=IBM+Plex+Mono:wght@500;700&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        width: 1080px;
-        height: 1920px;
-        overflow: hidden;
-        background: #090909;
-        color: #fff;
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px; height: 1920px; overflow: hidden;
+        background: #090909; color: #fff;
         font-family: "Inter", system-ui, sans-serif;
       }
-
-      #root {
-        position: relative;
-        width: 1080px;
-        height: 1920px;
-        overflow: hidden;
-      }
-
-      .clip {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-      }
-
-      .bg {
-        position: absolute;
-        inset: 0;
-        background: #090909;
-      }
-
-      .bg-flash {
-        position: absolute;
-        inset: 0;
-        background: #fff;
-        opacity: 0;
-        z-index: 20;
-        pointer-events: none;
-      }
-
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+      .clip { position: absolute; inset: 0; overflow: hidden; }
+      .bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, #141414 0%, #090909 65%); }
+      .bg-flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 50; pointer-events: none; }
       .grain {
-        position: absolute;
-        inset: 0;
-        opacity: 0.07;
+        position: absolute; inset: 0; opacity: 0.06; z-index: 1; pointer-events: none;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        z-index: 1;
-        pointer-events: none;
+      }
+      .glow {
+        position: absolute; width: 700px; height: 700px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(0,255,136,0.22) 0%, transparent 70%);
+        pointer-events: none; z-index: 0;
       }
 
-      .stage {
-        position: absolute;
-        inset: 0;
-        padding: 72px 56px 120px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        z-index: 2;
+      /* TEXT OVERLAY */
+      .text-top {
+        position: absolute; top: 72px; left: 48px; right: 48px; z-index: 30;
       }
-
+      .text-bottom {
+        position: absolute; bottom: 88px; left: 48px; right: 48px; z-index: 30;
+      }
       .mono {
-        font-family: "IBM Plex Mono", monospace;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
+        font-family: "IBM Plex Mono", monospace; font-weight: 700;
+        letter-spacing: 0.1em; text-transform: uppercase;
       }
+      .kicker { font-size: 30px; color: #00ff88; margin-bottom: 16px; }
+      .headline { font-size: 96px; font-weight: 900; line-height: 0.92; letter-spacing: -0.04em; }
+      .headline-sm { font-size: 72px; font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; }
+      .subline { margin-top: 20px; font-size: 40px; font-weight: 700; line-height: 1.1; color: #ccc; }
+      .accent { color: #00ff88; }
+      .strike { color: #555; text-decoration: line-through; text-decoration-thickness: 6px; }
 
-      .kicker {
-        font-size: 36px;
-        color: #00ff88;
-        margin-bottom: 28px;
+      /* PHONE */
+      .phone-rig {
+        position: absolute; left: 290px; top: 520px;
+        width: 500px; height: 980px; z-index: 10;
+        transform-origin: 50% 80%;
       }
-
-      .mega {
-        font-size: 200px;
-        font-weight: 900;
-        line-height: 0.88;
-        letter-spacing: -0.05em;
+      .phone-shadow {
+        position: absolute; left: 50%; bottom: -30px; width: 420px; height: 60px;
+        margin-left: -210px; background: rgba(0,0,0,0.55); border-radius: 50%;
+        filter: blur(18px); z-index: -1;
       }
-
-      .huge {
-        font-size: 128px;
-        font-weight: 900;
-        line-height: 0.92;
-        letter-spacing: -0.04em;
+      .phone-body {
+        width: 100%; height: 100%; border-radius: 54px;
+        border: 10px solid #2a2a2a; background: linear-gradient(160deg, #3a3a3a 0%, #1a1a1a 40%, #111 100%);
+        padding: 14px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.12), 0 30px 80px rgba(0,0,0,0.6);
       }
-
-      .big {
-        font-size: 88px;
-        font-weight: 900;
-        line-height: 0.95;
-        letter-spacing: -0.03em;
+      .phone-notch {
+        position: absolute; top: 22px; left: 50%; width: 160px; height: 34px;
+        margin-left: -80px; background: #000; border-radius: 20px; z-index: 5;
       }
-
-      .sub {
-        margin-top: 36px;
-        font-size: 52px;
-        font-weight: 700;
-        line-height: 1.15;
-        color: #d4d4d4;
-        max-width: 960px;
+      .phone-screen {
+        position: absolute; left: 14px; right: 14px; top: 70px; bottom: 14px;
+        border-radius: 38px; background: #0d0d0d; overflow: hidden;
+        border: 2px solid #222;
       }
-
-      .accent {
-        color: #00ff88;
+      .browser-chrome {
+        height: 72px; background: #1c1c1c; border-bottom: 2px solid #333;
+        display: flex; align-items: center; padding: 0 18px; gap: 12px;
       }
-
-      .strike {
-        color: #666;
-        text-decoration: line-through;
-        text-decoration-thickness: 8px;
+      .dot { width: 16px; height: 16px; border-radius: 50%; }
+      .dot-r { background: #ff5f57; }
+      .dot-y { background: #febc2e; }
+      .dot-g { background: #28c840; }
+      .url-bar {
+        flex: 1; height: 36px; background: #111; border-radius: 8px;
+        font-family: "IBM Plex Mono", monospace; font-size: 14px; color: #666;
+        display: flex; align-items: center; padding: 0 14px;
       }
-
-      .tab-rain {
-        position: absolute;
-        left: 56px;
-        right: 56px;
-        bottom: 140px;
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        z-index: 3;
+      .tab-strip {
+        display: flex; gap: 8px; padding: 12px; overflow: hidden;
+        background: #141414; border-bottom: 2px solid #2a2a2a;
       }
-
-      .tab-chip {
-        display: inline-block;
-        width: fit-content;
-        padding: 18px 28px;
-        border: 3px solid #333;
-        border-radius: 999px;
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 28px;
-        font-weight: 500;
-        background: #141414;
+      .mini-tab {
+        flex-shrink: 0; padding: 10px 16px; border-radius: 10px 10px 0 0;
+        background: #222; border: 2px solid #333; border-bottom: none;
+        font-family: "IBM Plex Mono", monospace; font-size: 13px; color: #aaa;
         white-space: nowrap;
       }
+      .mini-tab.active { background: #0d0d0d; color: #fff; border-color: #00ff88; }
+      .page-content { padding: 20px; }
+      .skeleton { height: 18px; background: #222; border-radius: 6px; margin-bottom: 12px; }
+      .skeleton.w80 { width: 80%; }
+      .skeleton.w60 { width: 60%; }
+      .skeleton.w40 { width: 40%; }
 
-      .punch-card {
-        border: 4px solid #fff;
-        padding: 48px 40px;
-        background: #111;
-        margin-top: 40px;
+      /* FLYING TABS (outside phone) */
+      .fly-tab {
+        position: absolute; z-index: 20;
+        padding: 16px 22px; border-radius: 14px;
+        background: #1a1a1a; border: 3px solid #00ff88;
+        font-family: "IBM Plex Mono", monospace; font-size: 22px; font-weight: 600;
+        white-space: nowrap; box-shadow: 0 12px 40px rgba(0,255,136,0.2);
       }
 
-      .punch-card p {
-        font-size: 56px;
-        font-weight: 800;
-        line-height: 1.1;
+      /* LAPTOP */
+      .laptop-rig {
+        position: absolute; left: 90px; top: 680px; width: 900px; height: 560px; z-index: 8;
+        transform-origin: 50% 100%;
+      }
+      .laptop-lid {
+        width: 100%; height: 420px; background: #2a2a2a; border-radius: 18px 18px 0 0;
+        border: 8px solid #3a3a3a; padding: 16px;
+        box-shadow: inset 0 2px 0 rgba(255,255,255,0.08);
+      }
+      .laptop-screen {
+        width: 100%; height: 100%; background: #0a0a0a; border-radius: 8px; overflow: hidden;
+      }
+      .laptop-base {
+        width: 104%; height: 28px; margin-left: -2%; background: linear-gradient(#444, #222);
+        border-radius: 0 0 12px 12px;
+      }
+      .laptop-hinge {
+        width: 100%; height: 8px; background: #1a1a1a;
+      }
+      .url-list { padding: 24px; }
+      .url-row {
+        font-family: "IBM Plex Mono", monospace; font-size: 20px; color: #666;
+        padding: 14px 0; border-bottom: 1px solid #222;
       }
 
-      .punch-card .small {
-        margin-top: 20px;
+      /* CHARACTER */
+      .character {
+        position: absolute; z-index: 25; width: 280px; height: 380px;
+      }
+      .char-svg { width: 100%; height: 100%; overflow: visible; }
+
+      /* SCAN LINE */
+      .scan-line {
+        position: absolute; left: 0; right: 0; height: 6px;
+        background: linear-gradient(90deg, transparent, #00ff88, transparent);
+        box-shadow: 0 0 24px #00ff88; opacity: 0; z-index: 15;
+      }
+
+      /* AGENT ORB */
+      .agent-orb {
+        position: absolute; width: 120px; height: 120px; border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #00ff88, #00884a);
+        box-shadow: 0 0 60px rgba(0,255,136,0.6); z-index: 18;
+      }
+      .agent-eye {
+        position: absolute; width: 28px; height: 28px; background: #000;
+        border-radius: 50%; top: 38px;
+      }
+      .agent-eye.left { left: 28px; }
+      .agent-eye.right { right: 28px; }
+
+      /* FINGER TAP */
+      .finger {
+        position: absolute; width: 100px; height: 100px; z-index: 40;
+        border-radius: 50% 50% 40% 40%;
+        background: radial-gradient(circle at 40% 35%, #ffe0bd, #d4a574);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+      }
+      .tap-ring {
+        position: absolute; width: 140px; height: 140px; border-radius: 50%;
+        border: 4px solid #00ff88; opacity: 0; z-index: 35;
+      }
+
+      /* OUTPUT CARD */
+      .result-card {
+        position: absolute; left: 48px; right: 48px; top: 1100px;
+        padding: 32px; border: 3px solid #00ff88; border-radius: 20px;
+        background: rgba(0,255,136,0.08); z-index: 20;
+        font-family: "IBM Plex Mono", monospace; font-size: 26px; line-height: 1.6; color: #00ff88;
+      }
+
+      /* TOMBSTONE */
+      .tomb {
+        position: absolute; width: 100px; height: 120px;
+        background: #222; border-radius: 50px 50px 8px 8px;
+        border: 3px solid #444; display: grid; place-items: center;
         font-size: 36px;
-        font-weight: 700;
-        color: #888;
       }
 
-      .one-click {
-        margin-top: 48px;
-        display: flex;
-        align-items: center;
-        gap: 24px;
+      /* CTA */
+      .cta-phone {
+        position: absolute; left: 340px; top: 700px; width: 400px; height: 800px; z-index: 10;
       }
-
-      .btn-fake {
-        width: 180px;
-        height: 180px;
-        border-radius: 50%;
-        background: #00ff88;
-        color: #000;
-        display: grid;
-        place-items: center;
-        font-size: 32px;
-        font-weight: 900;
-        text-align: center;
-        line-height: 1.05;
-        flex-shrink: 0;
-      }
-
-      .btn-label {
-        font-size: 64px;
-        font-weight: 900;
-        line-height: 1;
-      }
-
-      .output {
-        margin-top: 40px;
-        padding: 32px;
-        border: 3px dashed #00ff88;
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 30px;
-        line-height: 1.5;
-        color: #00ff88;
-      }
-
-      .cta-wrap {
-        text-align: center;
-        width: 100%;
-      }
-
-      .cta-wrap .mega {
-        font-size: 160px;
-      }
-
-      .cta-wrap .sub {
-        font-size: 48px;
-        color: #fff;
-      }
-
-      .emoji-bump {
-        font-size: 120px;
-        line-height: 1;
-        margin-bottom: 20px;
-      }
+      .cta-phone .phone-body { border-color: #00ff88; }
     </style>
   </head>
   <body>
-    <div data-hf-id="hf-wtrm" id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="20">
-      <div data-hf-id="hf-ifs6" id="flash" class="bg-flash clip" data-start="0" data-duration="20" data-track-index="2"></div>
+    <div data-hf-id="hf-app8" id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="22">
+      <div data-hf-id="hf-ktyj" id="flash" class="bg-flash clip" data-start="0" data-duration="22" data-track-index="3"></div>
 
-      <!-- 0-2.5: HOOK -->
-      <section data-hf-id="hf-231m" id="scene-1" class="clip" data-start="0" data-duration="2.5" data-track-index="1">
+      <!-- SCENE 1: CHAOS — phone + flying tabs + stressed character -->
+      <section data-hf-id="hf-3hxc" id="scene-1" class="clip" data-start="0" data-duration="3" data-track-index="1">
         <div data-hf-id="hf-m7dd" class="bg"></div>
         <div data-hf-id="hf-h60x" class="grain"></div>
-        <div data-hf-id="hf-tan6" class="stage">
+        <div data-hf-id="hf-4vkr" id="s1-glow" class="glow" style="left: 190px; top: 400px;"></div>
+
+        <div data-hf-id="hf-gcqz" class="text-top">
           <div data-hf-id="hf-gqgw" class="mono kicker" id="s1-kicker">be honest</div>
-          <div data-hf-id="hf-7msf" class="mega" id="s1-line1">YOUR</div>
-          <div data-hf-id="hf-4u8v" class="mega accent" id="s1-line2">BROWSER</div>
-          <div data-hf-id="hf-vzx5" class="huge" id="s1-line3">is drowning.</div>
+          <div data-hf-id="hf-5sjx" class="headline" id="s1-h1">YOUR PHONE</div>
+          <div data-hf-id="hf-67of" class="headline accent" id="s1-h2">IS DROWNING</div>
         </div>
-        <div data-hf-id="hf-3m15" class="tab-rain" id="s1-rain">
-          <span data-hf-id="hf-216y" class="tab-chip" id="s1-t1">that one hotel</span>
-          <span data-hf-id="hf-d13u" class="tab-chip" id="s1-t2">linkedin stalk #4</span>
-          <span data-hf-id="hf-dpn7" class="tab-chip" id="s1-t3">untitled doc FINAL v7</span>
-          <span data-hf-id="hf-go0r" class="tab-chip" id="s1-t4">youtube rabbit hole</span>
+
+        <div data-hf-id="hf-egxs" id="s1-char" class="character" style="left: 60px; top: 1050px;">
+          <svg data-hf-id="hf-dd2q" class="char-svg" viewBox="0 0 280 380" id="s1-char-svg">
+            <ellipse data-hf-id="hf-uq2x" cx="140" cy="70" rx="55" ry="60" fill="#ffe0bd" id="s1-head" />
+            <path data-hf-id="hf-xfpg" d="M95 50 Q140 20 185 50" fill="none" stroke="#333" stroke-width="6" id="s1-brow-l" />
+            <circle data-hf-id="hf-evb3" cx="115" cy="68" r="8" fill="#222" id="s1-eye-l" />
+            <circle data-hf-id="hf-z2lk" cx="165" cy="68" r="8" fill="#222" id="s1-eye-r" />
+            <path data-hf-id="hf-x19c" d="M120 95 Q140 80 160 95" fill="none" stroke="#222" stroke-width="5" id="s1-mouth" />
+            <rect data-hf-id="hf-gw9j" x="100" y="130" width="80" height="120" rx="20" fill="#00ff88" id="s1-body" />
+            <rect data-hf-id="hf-bdst" x="60" y="145" width="40" height="100" rx="16" fill="#ffe0bd" id="s1-arm-l" />
+            <rect data-hf-id="hf-3q4e" x="180" y="145" width="40" height="100" rx="16" fill="#ffe0bd" id="s1-arm-r" />
+            <rect data-hf-id="hf-3wi4" x="110" y="250" width="30" height="110" rx="14" fill="#333" id="s1-leg-l" />
+            <rect data-hf-id="hf-ezjh" x="140" y="250" width="30" height="110" rx="14" fill="#333" id="s1-leg-r" />
+          </svg>
         </div>
+
+        <div data-hf-id="hf-4qxw" id="s1-phone" class="phone-rig">
+          <div data-hf-id="hf-5twk" class="phone-shadow" id="s1-shadow"></div>
+          <div data-hf-id="hf-q65t" class="phone-body">
+            <div data-hf-id="hf-c27x" class="phone-notch"></div>
+            <div data-hf-id="hf-9o7x" class="phone-screen">
+              <div data-hf-id="hf-s60r" class="browser-chrome">
+                <div data-hf-id="hf-sd9x" class="dot dot-r"></div><div data-hf-id="hf-4vse" class="dot dot-y"></div><div data-hf-id="hf-paew" class="dot dot-g"></div>
+                <div data-hf-id="hf-pdok" class="url-bar">89 tabs open</div>
+              </div>
+              <div data-hf-id="hf-q39r" class="tab-strip" id="s1-strip">
+                <div data-hf-id="hf-tk8h" class="mini-tab active">hotel??</div>
+                <div data-hf-id="hf-tvud" class="mini-tab">linkedin</div>
+                <div data-hf-id="hf-4npa" class="mini-tab">doc v7</div>
+                <div data-hf-id="hf-55tw" class="mini-tab">youtube</div>
+                <div data-hf-id="hf-9ejl" class="mini-tab">slack</div>
+                <div data-hf-id="hf-gyzi" class="mini-tab">notion</div>
+              </div>
+              <div data-hf-id="hf-aglt" class="page-content" id="s1-page">
+                <div data-hf-id="hf-hzii" class="skeleton w80"></div><div data-hf-id="hf-z5xs" class="skeleton w60"></div>
+                <div data-hf-id="hf-keh2" class="skeleton w40"></div><div data-hf-id="hf-36j2" class="skeleton w80"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-hf-id="hf-gv97" id="s1-ft1" class="fly-tab" style="left: 700px; top: 600px;">that hotel</div>
+        <div data-hf-id="hf-upzd" id="s1-ft2" class="fly-tab" style="left: 40px; top: 750px;">linkedin stalk</div>
+        <div data-hf-id="hf-u5zx" id="s1-ft3" class="fly-tab" style="left: 750px; top: 900px;">FINAL v7</div>
+        <div data-hf-id="hf-19oj" id="s1-ft4" class="fly-tab" style="left: 30px; top: 1100px;">rabbit hole</div>
+        <div data-hf-id="hf-rlt8" id="s1-ft5" class="fly-tab" style="left: 680px; top: 1200px;">expense report</div>
       </section>
 
-      <!-- 2.5-5: ONETAB ROAST -->
-      <section data-hf-id="hf-6gv8" id="scene-2" class="clip" data-start="2.5" data-duration="2.5" data-track-index="1">
+      <!-- SCENE 2: ONETAB SUCK -->
+      <section data-hf-id="hf-w8bo" id="scene-2" class="clip" data-start="3" data-duration="3" data-track-index="1">
         <div data-hf-id="hf-ws3p" class="bg"></div>
         <div data-hf-id="hf-3l5h" class="grain"></div>
-        <div data-hf-id="hf-xa86" class="stage">
+        <div data-hf-id="hf-sr1n" class="text-top">
           <div data-hf-id="hf-vro0" class="mono kicker" id="s2-kicker">you hit onetab</div>
-          <div data-hf-id="hf-4u4r" class="huge" id="s2-line1">Tabs gone.</div>
-          <div data-hf-id="hf-vt5s" class="big strike" id="s2-line2">Brain still fried.</div>
-          <p data-hf-id="hf-tt1t" class="sub" id="s2-sub">You saved 89 URLs. You remember zero of them.</p>
+          <div data-hf-id="hf-pnsn" class="headline-sm" id="s2-h1">Tabs gone.</div>
+          <div data-hf-id="hf-42tr" class="headline-sm strike" id="s2-h2">Brain fried.</div>
         </div>
+
+        <div data-hf-id="hf-h7kd" id="s2-laptop" class="laptop-rig">
+          <div data-hf-id="hf-xhww" class="laptop-lid">
+            <div data-hf-id="hf-ify5" class="laptop-screen">
+              <div data-hf-id="hf-xsmz" class="browser-chrome">
+                <div data-hf-id="hf-xgtl" class="dot dot-r"></div><div data-hf-id="hf-qb5e" class="dot dot-y"></div><div data-hf-id="hf-j1lc" class="dot dot-g"></div>
+                <div data-hf-id="hf-nmpx" class="url-bar">onetab saved list</div>
+              </div>
+              <div data-hf-id="hf-ddie" class="url-list" id="s2-list">
+                <div data-hf-id="hf-dofi" class="url-row" id="s2-u1">booking.com/kyoto-hotel-???</div>
+                <div data-hf-id="hf-uhhp" class="url-row" id="s2-u2">google.com/flights/zrh-nrt</div>
+                <div data-hf-id="hf-zkxu" class="url-row" id="s2-u3">notion.so/untitled-FINAL-v7</div>
+                <div data-hf-id="hf-emle" class="url-row" id="s2-u4">github.com/pull/142-review</div>
+                <div data-hf-id="hf-xgz3" class="url-row" id="s2-u5">reddit.com/r/whatisthisthing</div>
+              </div>
+            </div>
+          </div>
+          <div data-hf-id="hf-0nfm" class="laptop-hinge"></div>
+          <div data-hf-id="hf-x2ca" class="laptop-base"></div>
+        </div>
+
+        <div data-hf-id="hf-4jdh" id="s2-vacuum" class="fly-tab" style="left: 440px; top: 500px; font-size: 18px;">89 tabs →</div>
       </section>
 
-      <!-- 5-7.5: CEMETERY PUNCH -->
-      <section data-hf-id="hf-2wqx" id="scene-3" class="clip" data-start="5" data-duration="2.5" data-track-index="1">
+      <!-- SCENE 3: CEMETERY -->
+      <section data-hf-id="hf-idvg" id="scene-3" class="clip" data-start="6" data-duration="3" data-track-index="1">
         <div data-hf-id="hf-xz0s" class="bg"></div>
         <div data-hf-id="hf-4s2k" class="grain"></div>
-        <div data-hf-id="hf-xoj7" class="stage">
-          <div data-hf-id="hf-zrgn" class="emoji-bump" id="s3-emoji">💀</div>
-          <div data-hf-id="hf-h0e4" class="huge" id="s3-line1">A cemetery</div>
-          <div data-hf-id="hf-oj4s" class="huge accent" id="s3-line2">of links.</div>
-          <div data-hf-id="hf-qjh6" class="punch-card" id="s3-card">
-            <p data-hf-id="hf-ne7w">booking.com/hotels/kyoto...</p>
-            <p data-hf-id="hf-cofe" class="small">(what was on this page? nobody knows)</p>
+        <div data-hf-id="hf-scqm" class="text-top">
+          <div data-hf-id="hf-11py" class="headline-sm" id="s3-h1">A cemetery</div>
+          <div data-hf-id="hf-iqjq" class="headline-sm accent" id="s3-h2">of links.</div>
+          <p data-hf-id="hf-tkaf" class="subline" id="s3-sub">nobody knows what was on them</p>
+        </div>
+
+        <div data-hf-id="hf-ygxp" id="s3-phone" class="phone-rig" style="top: 580px;">
+          <div data-hf-id="hf-zeed" class="phone-body">
+            <div data-hf-id="hf-ce35" class="phone-notch"></div>
+            <div data-hf-id="hf-zy4k" class="phone-screen" style="background: #0a0a0a;">
+              <div data-hf-id="hf-t7bm" id="s3-t1" class="tomb" style="left: 40px; top: 80px; position: absolute;">💀</div>
+              <div data-hf-id="hf-xbxl" id="s3-t2" class="tomb" style="left: 180px; top: 120px; position: absolute;">💀</div>
+              <div data-hf-id="hf-hck7" id="s3-t3" class="tomb" style="left: 300px; top: 60px; position: absolute;">💀</div>
+              <div data-hf-id="hf-mhxo" id="s3-t4" class="tomb" style="left: 100px; top: 280px; position: absolute;">💀</div>
+              <div data-hf-id="hf-89k5" id="s3-t5" class="tomb" style="left: 260px; top: 320px; position: absolute;">💀</div>
+              <div data-hf-id="hf-v9eg" id="s3-url" class="url-row" style="position: absolute; left: 20px; right: 20px; bottom: 40px; font-size: 16px;">booking.com/hotels/kyoto...</div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- 7.5-11: THE TURN -->
-      <section data-hf-id="hf-0ux0" id="scene-4" class="clip" data-start="7.5" data-duration="3.5" data-track-index="1">
+      <!-- SCENE 4: AGENT SCAN -->
+      <section data-hf-id="hf-2795" id="scene-4" class="clip" data-start="9" data-duration="4" data-track-index="1">
         <div data-hf-id="hf-xkpr" class="bg"></div>
         <div data-hf-id="hf-4drj" class="grain"></div>
-        <div data-hf-id="hf-y2u8" class="stage">
+        <div data-hf-id="hf-jmgl" id="s4-glow" class="glow" style="left: 190px; top: 500px;"></div>
+        <div data-hf-id="hf-ryfl" class="text-top">
           <div data-hf-id="hf-qc3g" class="mono kicker" id="s4-kicker">what if</div>
-          <div data-hf-id="hf-kyip" class="huge" id="s4-line1">It read</div>
-          <div data-hf-id="hf-u7q7" class="huge" id="s4-line2">every tab.</div>
-          <div data-hf-id="hf-kqhp" class="big accent" id="s4-line3">Then did the work.</div>
+          <div data-hf-id="hf-9u0d" class="headline-sm" id="s4-h1">It read</div>
+          <div data-hf-id="hf-2wwz" class="headline-sm accent" id="s4-h2">every tab.</div>
+        </div>
+
+        <div data-hf-id="hf-3seh" id="s4-phone" class="phone-rig">
+          <div data-hf-id="hf-cacb" class="phone-body" style="border-color: #00ff88;">
+            <div data-hf-id="hf-dl08" class="phone-notch"></div>
+            <div data-hf-id="hf-a9kh" class="phone-screen">
+              <div data-hf-id="hf-xeby" class="browser-chrome">
+                <div data-hf-id="hf-ynqo" class="dot dot-r"></div><div data-hf-id="hf-qpgf" class="dot dot-y"></div><div data-hf-id="hf-huo9" class="dot dot-g"></div>
+                <div data-hf-id="hf-zcjp" class="url-bar" style="color: #00ff88;">scanning...</div>
+              </div>
+              <div data-hf-id="hf-8shc" class="tab-strip">
+                <div data-hf-id="hf-4lew" class="mini-tab active">hotel A</div>
+                <div data-hf-id="hf-v665" class="mini-tab">hotel B</div>
+                <div data-hf-id="hf-vkh6" class="mini-tab">hotel C</div>
+              </div>
+              <div data-hf-id="hf-30jd" class="page-content">
+                <div data-hf-id="hf-3i2q" class="skeleton w80" style="background: #0a3d22;"></div>
+                <div data-hf-id="hf-ivxo" class="skeleton w60" style="background: #0a3d22;"></div>
+                <div data-hf-id="hf-if8m" class="skeleton w80" style="background: #0a3d22;"></div>
+              </div>
+              <div data-hf-id="hf-5u4s" id="s4-scan" class="scan-line" style="top: 72px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div data-hf-id="hf-cya9" id="s4-orb" class="agent-orb" style="left: 480px; top: 1350px;">
+          <div data-hf-id="hf-20me" class="agent-eye left"></div>
+          <div data-hf-id="hf-5u9p" class="agent-eye right"></div>
+        </div>
+        <div data-hf-id="hf-n4fb" class="text-bottom">
+          <div data-hf-id="hf-pkrs" class="headline-sm accent" id="s4-h3">Then did the work.</div>
         </div>
       </section>
 
-      <!-- 11-15.5: ONE CLICK -->
-      <section data-hf-id="hf-bvjc" id="scene-5" class="clip" data-start="11" data-duration="4.5" data-track-index="1">
+      <!-- SCENE 5: TAP + EXPLODE + RESULT -->
+      <section data-hf-id="hf-vidg" id="scene-5" class="clip" data-start="13" data-duration="5" data-track-index="1">
         <div data-hf-id="hf-yrmu" class="bg"></div>
         <div data-hf-id="hf-5kom" class="grain"></div>
-        <div data-hf-id="hf-vap1" class="stage">
-          <div data-hf-id="hf-s35u" class="one-click" id="s5-click">
-            <div data-hf-id="hf-axae" class="btn-fake" id="s5-btn">SAVE<br data-hf-id="hf-x5px">&amp;<br data-hf-id="hf-rsrt">GO</div>
-            <div data-hf-id="hf-ub6s" class="btn-label" id="s5-label">One click.<br data-hf-id="hf-szow">89 tabs → gone.</div>
+        <div data-hf-id="hf-rk4k" class="text-top">
+          <div data-hf-id="hf-d4cs" class="mono kicker" id="s5-kicker">one click</div>
+          <div data-hf-id="hf-pgk7" class="headline-sm" id="s5-h1">89 tabs → gone.</div>
+        </div>
+
+        <div data-hf-id="hf-w9w0" id="s5-phone" class="phone-rig">
+          <div data-hf-id="hf-0lbg" class="phone-body">
+            <div data-hf-id="hf-d6p7" class="phone-notch"></div>
+            <div data-hf-id="hf-bghk" class="phone-screen">
+              <div data-hf-id="hf-x00x" class="browser-chrome">
+                <div data-hf-id="hf-y9fn" class="dot dot-r"></div><div data-hf-id="hf-r3rg" class="dot dot-y"></div><div data-hf-id="hf-i8za" class="dot dot-g"></div>
+                <div data-hf-id="hf-3e0k" class="url-bar">tab to work</div>
+              </div>
+              <div data-hf-id="hf-z853" id="s5-tabs" class="tab-strip">
+                <div data-hf-id="hf-vkx3" class="mini-tab" id="s5-ta">hotel</div>
+                <div data-hf-id="hf-4xay" class="mini-tab" id="s5-tb">flight</div>
+                <div data-hf-id="hf-978v" class="mini-tab" id="s5-tc">slack</div>
+              </div>
+            </div>
           </div>
-          <div data-hf-id="hf-m74k" class="output" id="s5-out">
-            &gt; 3 hotels compared<br data-hf-id="hf-sldv">
-            &gt; prices extracted<br data-hf-id="hf-qluq">
-            &gt; shortlist ready
-          </div>
+        </div>
+
+        <div data-hf-id="hf-4epj" id="s5-ring" class="tap-ring" style="left: 470px; top: 900px;"></div>
+        <div data-hf-id="hf-xzrp" id="s5-finger" class="finger" style="left: 490px; top: 920px;"></div>
+
+        <div data-hf-id="hf-awir" id="s5-result" class="result-card">
+          ✓ 3 hotels compared<br data-hf-id="hf-x5px">
+          ✓ prices extracted<br data-hf-id="hf-rsrt">
+          ✓ shortlist ready
         </div>
       </section>
 
-      <!-- 15.5-18: KICKER -->
-      <section data-hf-id="hf-nzj2" id="scene-6" class="clip" data-start="15.5" data-duration="2.5" data-track-index="1">
+      <!-- SCENE 6: BOSS KICKER + CALM CHARACTER -->
+      <section data-hf-id="hf-5evk" id="scene-6" class="clip" data-start="18" data-duration="2.5" data-track-index="1">
         <div data-hf-id="hf-ydbt" class="bg"></div>
         <div data-hf-id="hf-56dl" class="grain"></div>
-        <div data-hf-id="hf-vp02" class="stage">
-          <div data-hf-id="hf-zh75" class="huge" id="s6-line1">Your boss thinks</div>
-          <div data-hf-id="hf-9z5i" class="mega accent" id="s6-line2">you're organized.</div>
-          <p data-hf-id="hf-uawr" class="sub" id="s6-sub">Don't tell them it's an agent.</p>
+        <div data-hf-id="hf-bw32" id="s6-char" class="character" style="left: 400px; top: 900px;">
+          <svg data-hf-id="hf-vkvw" class="char-svg" viewBox="0 0 280 380">
+            <ellipse data-hf-id="hf-fb4c" cx="140" cy="70" rx="55" ry="60" fill="#ffe0bd" id="s6-head" />
+            <path data-hf-id="hf-8jkk" d="M105 58 Q140 48 175 58" fill="none" stroke="#333" stroke-width="5" />
+            <circle data-hf-id="hf-12ay" cx="115" cy="68" r="8" fill="#222" />
+            <circle data-hf-id="hf-2vgn" cx="165" cy="68" r="8" fill="#222" />
+            <path data-hf-id="hf-iuzw" d="M115 92 Q140 108 165 92" fill="none" stroke="#222" stroke-width="5" />
+            <rect data-hf-id="hf-ylte" x="100" y="130" width="80" height="120" rx="20" fill="#00ff88" />
+            <rect data-hf-id="hf-jfw1" x="55" y="150" width="40" height="90" rx="16" fill="#ffe0bd" id="s6-arm" />
+            <rect data-hf-id="hf-e029" x="185" y="150" width="40" height="90" rx="16" fill="#ffe0bd" />
+            <rect data-hf-id="hf-jn16" x="110" y="250" width="30" height="110" rx="14" fill="#333" />
+            <rect data-hf-id="hf-g129" x="140" y="250" width="30" height="110" rx="14" fill="#333" />
+          </svg>
+        </div>
+        <div data-hf-id="hf-hvgd" id="s6-boss" class="character" style="left: 60px; top: 700px; width: 200px; height: 280px; opacity: 0.7;">
+          <svg data-hf-id="hf-4f7n" viewBox="0 0 200 280" style="width:100%;height:100%">
+            <ellipse data-hf-id="hf-1jk8" cx="100" cy="55" rx="45" ry="48" fill="#d4a574" />
+            <rect data-hf-id="hf-fr3z" x="70" y="103" width="60" height="90" rx="16" fill="#444" />
+            <text data-hf-id="hf-0sgw" x="100" y="60" text-anchor="middle" font-size="40">👍</text>
+          </svg>
+        </div>
+        <div data-hf-id="hf-r5tj" class="text-top">
+          <div data-hf-id="hf-5fib" class="headline-sm" id="s6-h1">Boss thinks you're</div>
+          <div data-hf-id="hf-nhzp" class="headline accent" id="s6-h2">organized.</div>
+          <p data-hf-id="hf-mks5" class="subline" id="s6-sub">don't mention the agent</p>
         </div>
       </section>
 
-      <!-- 18-20: CTA -->
-      <section data-hf-id="hf-av86" id="scene-7" class="clip" data-start="18" data-duration="2" data-track-index="1">
+      <!-- SCENE 7: CTA -->
+      <section data-hf-id="hf-6qtg" id="scene-7" class="clip" data-start="20.5" data-duration="1.5" data-track-index="1">
         <div data-hf-id="hf-zk8w" class="bg"></div>
-        <div data-hf-id="hf-6dao" class="grain"></div>
-        <div data-hf-id="hf-hpxt" class="stage cta-wrap">
-          <div data-hf-id="hf-tygq" class="mega accent" id="s7-title">Tab to Work</div>
-          <p data-hf-id="hf-34ge" class="sub" id="s7-tag">Tab chaos → work done</p>
+        <div data-hf-id="hf-05zz" id="s7-glow" class="glow" style="left: 190px; top: 600px;"></div>
+        <div data-hf-id="hf-iwtt" class="text-top" style="text-align: center; top: 120px;">
+          <div data-hf-id="hf-j5l5" class="headline accent" id="s7-title" style="font-size: 120px;">Tab to Work</div>
+          <p data-hf-id="hf-av7j" class="subline" id="s7-tag" style="color: #fff;">chaos → done</p>
+        </div>
+        <div data-hf-id="hf-djrm" id="s7-phone" class="cta-phone">
+          <div data-hf-id="hf-070f" class="phone-body">
+            <div data-hf-id="hf-756y" class="phone-notch"></div>
+            <div data-hf-id="hf-b26j" class="phone-screen">
+              <div data-hf-id="hf-2jlb" style="padding: 60px 30px; text-align: center;">
+                <div data-hf-id="hf-3btz" style="font-size: 80px; margin-bottom: 20px;">✓</div>
+                <div data-hf-id="hf-w38z" class="mono" style="font-size: 22px; color: #00ff88;">3 goals active</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -331,65 +455,107 @@
     <script>
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
+      const punch = "back.out(3)";
+      const snap = 0.1;
+      const flash = (t) => {
+        tl.to("#flash", { opacity: 0.8, duration: 0.03 }, t)
+          .to("#flash", { opacity: 0, duration: 0.07 }, t + 0.03)
+          .set("#flash", { opacity: 0 }, t + 0.12);
+      };
 
-      const snap = 0.12;
-      const punch = "back.out(2.5)";
+      // ── SCENE 1: phone wobble, tabs fly in, character panic ──
+      tl.from("#s1-kicker", { opacity: 0, y: 30, duration: snap }, 0.05)
+        .from("#s1-h1", { opacity: 0, scale: 1.5, duration: snap, ease: punch }, 0.1)
+        .from("#s1-h2", { opacity: 0, scale: 1.4, duration: snap, ease: punch }, 0.18)
+        .from("#s1-phone", { opacity: 0, y: 200, rotation: 12, duration: 0.35, ease: punch }, 0.15)
+        .from("#s1-char", { opacity: 0, x: -80, duration: 0.25 }, 0.25)
+        .from("#s1-ft1", { opacity: 0, x: 200, y: -100, rotation: 25, duration: 0.2, ease: "power3.out" }, 0.4)
+        .from("#s1-ft2", { opacity: 0, x: -150, y: -80, rotation: -20, duration: 0.2, ease: "power3.out" }, 0.5)
+        .from("#s1-ft3", { opacity: 0, x: 180, y: 60, rotation: 15, duration: 0.2, ease: "power3.out" }, 0.55)
+        .from("#s1-ft4", { opacity: 0, x: -120, y: 40, rotation: -30, duration: 0.2, ease: "power3.out" }, 0.6)
+        .from("#s1-ft5", { opacity: 0, x: 160, y: 100, rotation: 20, duration: 0.2, ease: "power3.out" }, 0.65)
+        .to("#s1-ft1", { x: 180, y: 350, scale: 0.6, rotation: 0, duration: 0.35, ease: "power2.in" }, 0.85)
+        .to("#s1-ft2", { x: 200, y: 400, scale: 0.6, rotation: 0, duration: 0.35, ease: "power2.in" }, 0.85)
+        .to("#s1-ft3", { x: 160, y: 380, scale: 0.6, rotation: 0, duration: 0.35, ease: "power2.in" }, 0.85)
+        .to("#s1-ft4", { x: 190, y: 420, scale: 0.6, rotation: 0, duration: 0.35, ease: "power2.in" }, 0.85)
+        .to("#s1-ft5", { x: 170, y: 360, scale: 0.6, rotation: 0, duration: 0.35, ease: "power2.in" }, 0.85)
+        .to("#s1-phone", { rotation: -4, duration: 0.06, yoyo: true, repeat: 7, ease: "power1.inOut" }, 0.9)
+        .to("#s1-char", { y: 6, duration: 0.08, yoyo: true, repeat: 9, ease: "power1.inOut" }, 0.9)
+        .to("#s1-char", { rotation: 3, transformOrigin: "50% 80%", duration: 0.1, yoyo: true, repeat: 5 }, 1.0)
+        .to("#s1-strip", { x: -120, duration: 0.8, ease: "power1.inOut" }, 1.2)
+        .to("#s1-glow", { scale: 1.3, opacity: 0.8, duration: 0.4 }, 1.5);
+      flash(2.88);
 
-      // Scene 1 — instant hook
-      tl.from("#s1-kicker", { opacity: 0, y: 40, duration: snap, ease: "power4.out" }, 0.05)
-        .from("#s1-line1", { opacity: 0, scale: 1.4, duration: snap, ease: punch }, 0.1)
-        .from("#s1-line2", { opacity: 0, scale: 1.3, duration: snap, ease: punch }, 0.18)
-        .from("#s1-line3", { opacity: 0, x: -60, duration: snap, ease: "power4.out" }, 0.26)
-        .from("#s1-rain .tab-chip", { opacity: 0, x: 120, duration: 0.1, stagger: 0.06, ease: "power3.out" }, 0.35)
-        .to("#s1-rain", { x: -8, duration: 0.08, yoyo: true, repeat: 5, ease: "power1.inOut" }, 0.9)
-        .to("#flash", { opacity: 0.85, duration: 0.04, ease: "power1.in" }, 2.38)
-        .to("#flash", { opacity: 0, duration: 0.08, ease: "power1.out" }, 2.42)
-        .set("#flash", { opacity: 0 }, 2.5);
+      // ── SCENE 2: laptop slam, vacuum suck ──
+      tl.from("#s2-laptop", { opacity: 0, y: 400, rotation: 8, scale: 0.7, duration: 0.4, ease: punch }, 3.05)
+        .from("#s2-kicker", { opacity: 0, duration: snap }, 3.1)
+        .from("#s2-h1", { opacity: 0, scale: 1.6, duration: snap, ease: punch }, 3.2)
+        .from("#s2-h2", { opacity: 0, y: 40, duration: snap }, 3.35)
+        .from("#s2-u1", { opacity: 0, x: -60, duration: 0.08, stagger: 0.06 }, 3.5)
+        .from("#s2-vacuum", { opacity: 0, scale: 0, duration: 0.2, ease: punch }, 3.6)
+        .to("#s2-vacuum", { y: 300, scale: 2, opacity: 0, duration: 0.5, ease: "power2.in" }, 4.0)
+        .to("#s2-list .url-row", { opacity: 0.3, x: 20, duration: 0.15, stagger: 0.04 }, 4.2)
+        .to("#s2-laptop", { rotation: 2, duration: 0.05, yoyo: true, repeat: 3 }, 4.5);
+      flash(5.88);
 
-      // Scene 2
-      tl.from("#s2-kicker", { opacity: 0, duration: snap }, 2.55)
-        .from("#s2-line1", { opacity: 0, scale: 1.5, duration: snap, ease: punch }, 2.62)
-        .from("#s2-line2", { opacity: 0, y: 30, duration: snap }, 2.75)
-        .from("#s2-sub", { opacity: 0, y: 20, duration: snap }, 2.9)
-        .to("#flash", { opacity: 0.7, duration: 0.03 }, 4.92)
-        .to("#flash", { opacity: 0, duration: 0.06 }, 4.95)
-        .set("#flash", { opacity: 0 }, 5);
+      // ── SCENE 3: tombstones rise, phone drops ──
+      tl.from("#s3-phone", { opacity: 0, y: -300, rotation: -15, duration: 0.35, ease: punch }, 6.05)
+        .from("#s3-h1", { opacity: 0, x: -80, duration: snap }, 6.15)
+        .from("#s3-h2", { opacity: 0, x: 80, duration: snap }, 6.25)
+        .from("#s3-sub", { opacity: 0, duration: snap }, 6.4)
+        .from("#s3-t1", { opacity: 0, y: 80, duration: 0.15, ease: punch }, 6.3)
+        .from("#s3-t2", { opacity: 0, y: 80, duration: 0.15, ease: punch }, 6.4)
+        .from("#s3-t3", { opacity: 0, y: 80, duration: 0.15, ease: punch }, 6.5)
+        .from("#s3-t4", { opacity: 0, y: 80, duration: 0.15, ease: punch }, 6.6)
+        .from("#s3-t5", { opacity: 0, y: 80, duration: 0.15, ease: punch }, 6.7)
+        .to("#s3-phone", { y: 15, duration: 0.08, yoyo: true, repeat: 4, ease: "power1.inOut" }, 7.0)
+        .from("#s3-url", { opacity: 0, y: 20, duration: 0.2 }, 7.2);
+      flash(8.88);
 
-      // Scene 3
-      tl.from("#s3-emoji", { opacity: 0, scale: 0, duration: 0.15, ease: punch }, 5.05)
-        .from("#s3-line1", { opacity: 0, x: -80, duration: snap, ease: "power4.out" }, 5.15)
-        .from("#s3-line2", { opacity: 0, x: 80, duration: snap, ease: "power4.out" }, 5.25)
-        .from("#s3-card", { opacity: 0, y: 50, duration: 0.18, ease: "power3.out" }, 5.4)
-        .to("#flash", { opacity: 0.6, duration: 0.03 }, 7.42)
-        .to("#flash", { opacity: 0, duration: 0.06 }, 7.45)
-        .set("#flash", { opacity: 0 }, 7.5);
+      // ── SCENE 4: scan line, orb awakens, phone glows ──
+      tl.from("#s4-phone", { opacity: 0, scale: 0.5, rotation: 8, duration: 0.35, ease: punch }, 9.05)
+        .from("#s4-kicker", { opacity: 0, duration: snap }, 9.1)
+        .from("#s4-h1", { opacity: 0, y: 50, duration: snap }, 9.2)
+        .from("#s4-h2", { opacity: 0, y: 50, duration: snap }, 9.3)
+        .to("#s4-scan", { opacity: 1, y: 700, duration: 1.2, ease: "power1.inOut", repeat: 2, yoyo: true }, 9.4)
+        .from("#s4-orb", { opacity: 0, scale: 0, duration: 0.3, ease: punch }, 9.8)
+        .to("#s4-orb", { y: -20, duration: 0.4, yoyo: true, repeat: 4, ease: "sine.inOut" }, 10.2)
+        .to("#s4-glow", { scale: 1.5, opacity: 1, duration: 0.5 }, 10.0)
+        .from("#s4-h3", { opacity: 0, scale: 1.4, duration: 0.2, ease: punch }, 11.5)
+        .to("#s4-phone", { scale: 1.05, duration: 0.3, yoyo: true, repeat: 1 }, 11.0);
+      flash(12.88);
 
-      // Scene 4
-      tl.from("#s4-kicker", { opacity: 0, duration: snap }, 7.55)
-        .from("#s4-line1", { opacity: 0, y: 60, duration: snap, ease: "power4.out" }, 7.65)
-        .from("#s4-line2", { opacity: 0, y: 60, duration: snap, ease: "power4.out" }, 7.78)
-        .from("#s4-line3", { opacity: 0, scale: 0.5, duration: 0.2, ease: punch }, 7.95)
-        .to("#flash", { opacity: 0.5, duration: 0.03 }, 10.92)
-        .to("#flash", { opacity: 0, duration: 0.06 }, 10.95)
-        .set("#flash", { opacity: 0 }, 11);
+      // ── SCENE 5: finger tap, tabs explode, result card ──
+      tl.from("#s5-phone", { opacity: 0, y: 100, duration: 0.25 }, 13.05)
+        .from("#s5-kicker", { opacity: 0, duration: snap }, 13.1)
+        .from("#s5-h1", { opacity: 0, scale: 1.5, duration: snap, ease: punch }, 13.15)
+        .from("#s5-finger", { opacity: 0, y: -200, scale: 1.5, duration: 0.3, ease: "power2.in" }, 13.4)
+        .to("#s5-finger", { y: 30, scale: 0.9, duration: 0.12, ease: "power2.in" }, 13.7)
+        .to("#s5-ring", { opacity: 1, scale: 2, duration: 0.4, ease: "power2.out" }, 13.75)
+        .to("#s5-ring", { opacity: 0, scale: 3, duration: 0.3 }, 14.1)
+        .to("#s5-ta", { x: -200, y: -300, rotation: -45, opacity: 0, duration: 0.25, ease: "power2.out" }, 13.82)
+        .to("#s5-tb", { x: 100, y: -350, rotation: 30, opacity: 0, duration: 0.25, ease: "power2.out" }, 13.82)
+        .to("#s5-tc", { x: 250, y: -280, rotation: 60, opacity: 0, duration: 0.25, ease: "power2.out" }, 13.82)
+        .to("#s5-phone", { scale: 0.95, duration: 0.08, yoyo: true, repeat: 1 }, 13.8)
+        .from("#s5-result", { opacity: 0, y: 80, scale: 0.8, duration: 0.3, ease: punch }, 14.2)
+        .to("#s5-result", { borderColor: "#fff", duration: 0.1, yoyo: true, repeat: 3 }, 14.8)
+        .to("#s5-finger", { opacity: 0, y: 50, duration: 0.2 }, 14.5);
+      flash(17.88);
 
-      // Scene 5
-      tl.from("#s5-btn", { opacity: 0, scale: 0, duration: 0.18, ease: punch }, 11.05)
-        .from("#s5-label", { opacity: 0, x: 40, duration: snap }, 11.2)
-        .from("#s5-out", { opacity: 0, y: 30, duration: 0.15 }, 11.5)
-        .to("#s5-out", { borderColor: "#fff", duration: 0.1, yoyo: true, repeat: 3 }, 12.2)
-        .to("#flash", { opacity: 0.4, duration: 0.03 }, 15.42)
-        .to("#flash", { opacity: 0, duration: 0.06 }, 15.45)
-        .set("#flash", { opacity: 0 }, 15.5);
+      // ── SCENE 6: calm character, boss thumbs up ──
+      tl.from("#s6-char", { opacity: 0, y: 60, duration: 0.25 }, 18.05)
+        .from("#s6-boss", { opacity: 0, x: -80, duration: 0.25 }, 18.1)
+        .from("#s6-h1", { opacity: 0, y: 30, duration: snap }, 18.15)
+        .from("#s6-h2", { opacity: 0, scale: 1.4, duration: 0.15, ease: punch }, 18.3)
+        .from("#s6-sub", { opacity: 0, duration: snap }, 18.5)
+        .to("#s6-char", { rotation: 2, duration: 0.2, yoyo: true, repeat: 3 }, 18.6)
+        .to("#s6-boss", { y: -10, duration: 0.3, yoyo: true, repeat: 2, ease: "sine.inOut" }, 18.7);
 
-      // Scene 6
-      tl.from("#s6-line1", { opacity: 0, y: 40, duration: snap }, 15.55)
-        .from("#s6-line2", { opacity: 0, scale: 1.3, duration: 0.15, ease: punch }, 15.7)
-        .from("#s6-sub", { opacity: 0, duration: snap }, 15.95);
-
-      // Scene 7
-      tl.from("#s7-title", { opacity: 0, scale: 0.6, duration: 0.15, ease: punch }, 18.05)
-        .from("#s7-tag", { opacity: 0, y: 20, duration: snap }, 18.25);
+      // ── SCENE 7: CTA slam ──
+      tl.from("#s7-title", { opacity: 0, scale: 0.4, duration: 0.2, ease: punch }, 20.55)
+        .from("#s7-tag", { opacity: 0, y: 20, duration: snap }, 20.7)
+        .from("#s7-phone", { opacity: 0, y: 150, rotation: 5, duration: 0.3, ease: punch }, 20.6)
+        .to("#s7-glow", { scale: 1.8, opacity: 1, duration: 0.4 }, 20.8);
 
       window.__timelines["main"] = tl;
     </script>
