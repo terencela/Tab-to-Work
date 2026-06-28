@@ -1,31 +1,30 @@
-# Tab Space
+# Tab to Work
 
-Save browser tabs as a workspace.
+Goal-aware tab intelligence: save tabs with content, classify by goals, chat with your research.
 
-Tab Space is a Safari extension that helps you save and manage your tabs as separate sessions, with handy shortcuts for power users.
+## Extension (Chrome + Safari)
 
-**[Download on the Mac App Store](https://apps.apple.com/app/tab-space/id1473726602?mt=12)**
+```bash
+cd extension
+# Chrome: chrome://extensions → Load unpacked → select extension/
+# Safari: ./scripts/build-safari.sh (requires Xcode)
+```
 
-Requires macOS 11 or later.
+See [extension/README.md](extension/README.md).
 
-## Features
+## Landing page
 
-- **Save Sessions** - Save all open tabs as a session with one click
-- **Organize Workspaces** - Separate sessions for different projects
-- **Keyboard Shortcuts** - Customizable shortcuts for save, restore, and manage
-
-## Links
-
-- [Website](https://mytab.space)
-- [Changelog](https://joyuer.notion.site/What-s-New-in-Tab-Space-66063fc8afea4f54906f32ef92915ea7)
-- [App source (GitHub)](https://github.com/yuanzhoucq/Tab-Space)
-
-## Local preview
-
-Open `index.html` in a browser, or serve the folder:
+Static site preview:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Then visit http://localhost:8080
+Visit http://localhost:8080
+
+## Docs
+
+- [Product requirements](docs/PRD.md)
+- [Decisions](DECISIONS.md)
+- [Explainer video](videos/tab-to-work-explainer/)
+

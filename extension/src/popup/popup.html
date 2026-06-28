@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tab to Work</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <img src="../../icons/icon48.png" width="28" height="28" alt="" />
+      <div>
+        <h1>Tab to Work</h1>
+        <p class="tagline">chaos → done</p>
+      </div>
+    </header>
+
+    <section class="stats">
+      <div class="stat">
+        <span id="tab-count" class="stat-value">—</span>
+        <span class="stat-label">tabs open</span>
+      </div>
+      <div class="stat">
+        <span id="goal-count" class="stat-value">—</span>
+        <span class="stat-label">active goals</span>
+      </div>
+    </section>
+
+    <button id="save-btn" class="btn-primary" type="button">
+      Save all tabs
+    </button>
+
+    <label class="checkbox">
+      <input id="close-after" type="checkbox" />
+      Close tabs after save
+    </label>
+
+    <p id="status" class="status" hidden></p>
+
+    <section class="recent">
+      <div class="section-head">
+        <h2>Recent sessions</h2>
+        <a href="../options/options.html" target="_blank" rel="noopener">All</a>
+      </div>
+      <ul id="session-list" class="session-list"></ul>
+    </section>
+
+    <footer class="footer">
+      <span class="kbd">⌘⇧S</span> quick save
+    </footer>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

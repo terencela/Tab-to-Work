@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tab to Work — Sessions</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="../../icons/icon48.png" width="36" height="36" alt="" />
+        <div>
+          <strong>Tab to Work</strong>
+          <span>chaos → done</span>
+        </div>
+      </div>
+      <nav>
+        <button class="nav active" data-panel="sessions" type="button">Sessions</button>
+        <button class="nav" data-panel="goals" type="button">Goals</button>
+        <button class="nav" data-panel="settings" type="button">Settings</button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <section id="panel-sessions" class="panel active">
+        <header class="panel-head">
+          <h1>Saved sessions</h1>
+          <p>Tabs with content excerpts and goal tags — not just URLs.</p>
+        </header>
+        <div id="sessions-root" class="sessions-root"></div>
+      </section>
+
+      <section id="panel-goals" class="panel">
+        <header class="panel-head">
+          <h1>Active goals</h1>
+          <p>Tabs are auto-classified against these goals (API summarization coming).</p>
+        </header>
+        <div id="goals-root" class="goals-root"></div>
+        <button id="add-goal" class="btn-secondary" type="button">+ Add goal</button>
+      </section>
+
+      <section id="panel-settings" class="panel">
+        <header class="panel-head">
+          <h1>Settings</h1>
+        </header>
+        <label class="field">
+          <input id="setting-all-windows" type="checkbox" />
+          Save tabs from all windows (not just current)
+        </label>
+        <label class="field">
+          <input id="setting-close" type="checkbox" />
+          Close tabs after save by default
+        </label>
+      </section>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

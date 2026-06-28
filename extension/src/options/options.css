@@ -1,0 +1,184 @@
+:root {
+  color-scheme: dark;
+  --bg: #090909;
+  --surface: #141414;
+  --border: #2a2a2a;
+  --text: #fff;
+  --muted: #999;
+  --accent: #00ff88;
+  --accent-dim: rgba(0, 255, 136, 0.1);
+  --danger: #ff5f57;
+  --font: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  background: #0d0d0d;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.brand strong { display: block; font-size: 16px; }
+.brand span {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.nav {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.nav.active, .nav:hover {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.main { padding: 32px 40px; max-width: 960px; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.panel-head { margin-bottom: 24px; }
+.panel-head h1 { font-size: 28px; font-weight: 900; letter-spacing: -0.03em; }
+.panel-head p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+
+.session-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.session-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.session-card h2 { font-size: 16px; font-weight: 800; }
+.session-card .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 4px; }
+.session-card p.summary { font-size: 13px; color: #ccc; padding: 12px 18px 0; }
+
+.tab-list { list-style: none; padding: 12px 18px 16px; }
+
+.tab-row {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.tab-row:first-child { border-top: none; }
+
+.tab-row img { width: 16px; height: 16px; border-radius: 2px; }
+.tab-row a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 13px; }
+.tab-row a:hover { color: var(--accent); }
+.tab-row .excerpt { grid-column: 2 / -1; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.tab-row .pill {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.btn-danger, .btn-secondary {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-danger:hover { color: var(--danger); border-color: var(--danger); }
+.btn-secondary {
+  margin-top: 12px;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.goal-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: var(--surface);
+}
+
+.goal-card label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.goal-card input, .goal-card textarea {
+  width: 100%;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 10px;
+  font: inherit;
+  margin-bottom: 10px;
+}
+.goal-card textarea { min-height: 60px; resize: vertical; font-family: var(--mono); font-size: 12px; }
+
+.goal-actions { display: flex; gap: 8px; align-items: center; }
+.goal-actions label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); text-transform: none; letter-spacing: 0; margin: 0; }
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.field input { accent-color: var(--accent); }
+
+.empty-state {
+  color: var(--muted);
+  padding: 40px 0;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  body { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+}
