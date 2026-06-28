@@ -21,8 +21,21 @@ const FFPROBE = ffprobeInstaller.path;
 
 const VOICE = "en-US-GuyNeural";
 const TTS_RATE = "+25%";
-const BGM_BPM = 118;
-const BGM_VOLUME = 0.32;
+const BGM_BPM = 120;
+const BGM_VOLUME = 0.28;
+const SFX_LIB = join(process.env.HOME, ".agents/skills/hyperframes-media/assets/sfx");
+
+/** Pixabay SFX bundled with hyperframes-media — trimmed on import. */
+const SFX_CATALOG = {
+  "whoosh-short": { file: "whoosh-short.mp3", trim: 0.55, volume: 0.9 },
+  "impact-bass-1": { file: "impact-bass-1.mp3", trim: 0.72, volume: 0.95 },
+  "glitch-1": { file: "glitch-1.mp3", trim: 0.48, volume: 0.85 },
+  sparkle: { file: "sparkle.mp3", trim: 1.15, volume: 0.8 },
+  click: { file: "click.mp3", trim: 0.35, volume: 0.95 },
+  pop: { file: "pop.mp3", trim: 0.68, volume: 0.85 },
+  notification: { file: "notification.mp3", trim: 0.95, volume: 0.78 },
+  "impact-bass-2": { file: "impact-bass-2.mp3", trim: 0.88, volume: 0.95 },
+};
 
 const SCENES = [
   {
@@ -30,28 +43,28 @@ const SCENES = [
     voice: "Be honest. Your phone is drowning in tabs.",
     minDuration: 2.6,
     padAfter: 0.2,
-    sfx: [{ id: "whoosh", atLocal: 2.45 }],
+    sfx: [{ id: "whoosh-short", atLocal: 2.45 }],
   },
   {
     id: 2,
     voice: "You hit OneTab. Tabs gone. Brain still fried.",
     minDuration: 2.8,
     padAfter: 0.2,
-    sfx: [{ id: "impact", atLocal: 0.35 }],
+    sfx: [{ id: "impact-bass-1", atLocal: 0.35 }],
   },
   {
     id: 3,
     voice: "Cool. A cemetery of links nobody will ever open.",
     minDuration: 2.8,
     padAfter: 0.2,
-    sfx: [{ id: "glitch", atLocal: 0.5 }],
+    sfx: [{ id: "glitch-1", atLocal: 0.5 }],
   },
   {
     id: 4,
     voice: "What if it read every tab, then did the work?",
     minDuration: 3.2,
     padAfter: 0.25,
-    sfx: [{ id: "chime", atLocal: 2.0 }],
+    sfx: [{ id: "sparkle", atLocal: 2.0 }],
   },
   {
     id: 5,
@@ -68,14 +81,14 @@ const SCENES = [
     voice: "Your boss thinks you're organized. Don't mention the agent.",
     minDuration: 3.0,
     padAfter: 0.2,
-    sfx: [{ id: "pop", atLocal: 0.3 }],
+    sfx: [{ id: "notification", atLocal: 0.3 }],
   },
   {
     id: 7,
     voice: "Tab to Work. Chaos to done.",
     minDuration: 2.0,
     padAfter: 0.3,
-    sfx: [{ id: "impact", atLocal: 0.15 }],
+    sfx: [{ id: "impact-bass-2", atLocal: 0.15 }],
   },
 ];
 
@@ -117,61 +130,65 @@ function edgeTtsToWav(text, outWav) {
   run("rm", ["-f", mp3]);
 }
 
-function synthSfx(id, outWav) {
-  const specs = {
-    whoosh: [
-      "-f", "lavfi", "-i", "anoisesrc=d=0.35:c=pink:a=0.9",
-      "-af", "lowpass=f=800,highpass=f=200,afade=t=in:st=0:d=0.05,afade=t=out:st=0.2:d=0.15,volume=2",
-    ],
-    impact: [
-      "-f", "lavfi", "-i", "sine=frequency=55:duration=0.25",
-      "-af", "afade=t=in:st=0:d=0.01,afade=t=out:st=0.08:d=0.17,volume=3",
-    ],
-    glitch: [
-      "-f", "lavfi", "-i", "anoisesrc=d=0.12:c=white:a=0.8",
-      "-af", "volume=2.5,afade=t=out:st=0.05:d=0.07",
-    ],
-    chime: [
-      "-f", "lavfi", "-i", "sine=frequency=880:duration=0.2",
-      "-af", "afade=t=in:st=0:d=0.02,afade=t=out:st=0.1:d=0.1,volume=1.5",
-    ],
-    click: [
-      "-f", "lavfi", "-i", "sine=frequency=1400:duration=0.04",
-      "-af", "afade=t=out:st=0.01:d=0.03,volume=2",
-    ],
-    pop: [
-      "-f", "lavfi", "-i", "sine=frequency=600:duration=0.08",
-      "-af", "afade=t=out:st=0.03:d=0.05,volume=2",
-    ],
-  };
-  const args = ["-y", ...specs[id], "-ar", "48000", "-ac", "1", outWav];
-  run(FFMPEG, args);
+function prepareSfx(id) {
+  const spec = SFX_CATALOG[id];
+  if (!spec) throw new Error(`Unknown SFX id: ${id}`);
+  const src = join(SFX_LIB, spec.file);
+  if (!existsSync(src)) {
+    throw new Error(`SFX library missing ${src}. Install hyperframes-media skill assets.`);
+  }
+  const outWav = join(AUDIO_DIR, `sfx-${id}.wav`);
+  const trim = spec.trim;
+  const fadeStart = Math.max(0, trim - 0.1).toFixed(3);
+  run(FFMPEG, [
+    "-y", "-i", src,
+    "-t", String(trim),
+    "-af", `highpass=f=35,afade=t=out:st=${fadeStart}:d=0.1,volume=${spec.volume}`,
+    "-ar", "48000", "-ac", "1",
+    outWav,
+  ]);
+  return outWav;
 }
 
-function synthBgm(outWav, duration) {
+function synthBgmLoop(outWav, loopDur = 8) {
   const beatS = (60 / BGM_BPM).toFixed(4);
-  const fadeOut = Math.max(0, duration - 1).toFixed(3);
-  const dur = duration.toFixed(3);
-  const noiseSrc = `anoisesrc=d=${dur}:c=pink:a=0.1`;
+  const noiseSrc = `anoisesrc=d=${loopDur}:c=pink:a=0.08`;
   run(FFMPEG, [
     "-y",
-    "-f", "lavfi", "-i", `sine=frequency=82.41:duration=${dur}`,
-    "-f", "lavfi", "-i", `sine=frequency=123.47:duration=${dur}`,
-    "-f", "lavfi", "-i", `sine=frequency=164.81:duration=${dur}`,
-    "-f", "lavfi", "-i", `sine=frequency=55:duration=${dur}`,
+    "-f", "lavfi", "-i", `sine=frequency=82.41:duration=${loopDur}`,
+    "-f", "lavfi", "-i", `sine=frequency=98:duration=${loopDur}`,
+    "-f", "lavfi", "-i", `sine=frequency=123.47:duration=${loopDur}`,
+    "-f", "lavfi", "-i", `sine=frequency=164.81:duration=${loopDur}`,
+    "-f", "lavfi", "-i", `sine=frequency=55:duration=${loopDur}`,
     "-f", "lavfi", "-i", noiseSrc,
     "-filter_complex",
     [
-      "[0]volume=0.1,tremolo=f=1.97:d=0.5,lowpass=f=180[b];",
-      "[1]volume=0.045[p];",
-      "[2]volume=0.025[t];",
-      `[3]volume='if(lt(mod(t\\,${beatS})\\,0.05)\\,0.35\\,0.02)':eval=frame,lowpass=f=120[k];`,
-      "[4]lowpass=f=250,volume=0.02[n];",
-      "[b][p][t][k][n]amix=inputs=5:duration=first,",
-      "highpass=f=45,",
-      "afade=t=in:st=0:d=0.7,",
-      `afade=t=out:st=${fadeOut}:d=1`,
+      "[0]volume=0.09,lowpass=f=150[bass];",
+      "[1]volume=0.04[fif];",
+      "[2]volume=0.035,tremolo=f=0.25:d=0.35[p];",
+      "[3]volume=0.022[t];",
+      `[4]volume='if(lt(mod(t\\,${beatS})\\,0.045)\\,0.42\\,0.03)':eval=frame,lowpass=f=110[k];`,
+      "[5]lowpass=f=280,volume=0.018[n];",
+      "[bass][fif][p][t][k][n]amix=inputs=6:duration=first,",
+      "highpass=f=42,lowpass=f=10000,",
+      "acompressor=threshold=-20dB:ratio=2.5:attack=8:release=120",
     ].join(""),
+    "-ar", "48000", "-ac", "2",
+    outWav,
+  ]);
+}
+
+function synthBgm(outWav, duration) {
+  const loopPath = join(AUDIO_DIR, "bgm-loop.wav");
+  synthBgmLoop(loopPath, 8);
+  const fadeOut = Math.max(0, duration - 1).toFixed(3);
+  const dur = duration.toFixed(3);
+  run(FFMPEG, [
+    "-y",
+    "-stream_loop", "-1",
+    "-i", loopPath,
+    "-t", dur,
+    "-af", `afade=t=in:st=0:d=0.6,afade=t=out:st=${fadeOut}:d=1.2,volume=0.62`,
     "-ar", "48000", "-ac", "2",
     outWav,
   ]);
@@ -380,10 +397,7 @@ function main() {
 
   const sfxTypes = new Set();
   for (const s of SCENES) for (const fx of s.sfx) sfxTypes.add(fx.id);
-  for (const type of sfxTypes) {
-    const path = join(AUDIO_DIR, `sfx-${type}.wav`);
-    if (!existsSync(path)) synthSfx(type, path);
-  }
+  for (const type of sfxTypes) prepareSfx(type);
 
   const timings = [];
   let cursor = 0;
@@ -405,6 +419,7 @@ function main() {
     });
 
     for (const fx of scene.sfx) {
+      const spec = SFX_CATALOG[fx.id];
       const sfxPath = join(AUDIO_DIR, `sfx-${fx.id}.wav`);
       const sfxDur = probeDuration(sfxPath);
       sfxTracks.push({
@@ -412,7 +427,7 @@ function main() {
         type: fx.id,
         start: cursor + fx.atLocal,
         duration: sfxDur,
-        volume: fx.id === "impact" ? 0.9 : 0.75,
+        volume: spec.volume,
       });
     }
 
@@ -428,6 +443,7 @@ function main() {
     ttsEngine: "edge-tts",
     voice: VOICE,
     ttsRate: TTS_RATE,
+    sfxSource: "hyperframes-media/pixabay",
     bgmBpm: BGM_BPM,
     bgmVolume: BGM_VOLUME,
     scenes: timings,
