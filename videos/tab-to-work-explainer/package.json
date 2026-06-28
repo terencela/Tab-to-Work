@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npx --yes hyperframes@0.7.15 preview",
     "check": "npx --yes hyperframes@0.7.15 lint && npx --yes hyperframes@0.7.15 validate && npx --yes hyperframes@0.7.15 inspect",
+    "audio": "node ./scripts/build-audio-sync.mjs",
     "render": "node ./scripts/render.mjs",
     "publish": "npx --yes hyperframes@0.7.15 publish"
   },

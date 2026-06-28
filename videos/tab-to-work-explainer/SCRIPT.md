@@ -1,19 +1,24 @@
-# Tab-to-Work — Narration Script
+# Tab-to-Work Explainer — Voice Script (v3)
 
-## Frame 1
-Forty-seven tabs open. Again. You know the feeling.
+Portrait motion cut. Seven scenes, synced to animation.
 
-## Frame 2
-OneTab saves your links. Tab Space names your sessions. But neither tells you what was actually on those pages.
+## Frame 1 (frame 1)
+    Be honest. Your phone is drowning in tabs.
 
-## Frame 3
-The next evolution is not better bookmarking. It is context. What you were working on. What you decided. What still needs doing.
+## Frame 2 (frame 2)
+    You hit OneTab. Tabs gone. Brain still fried.
 
-## Frame 4
-Tab to Work. One click saves and closes. Every tab gets a summary. Your active goals organize the session. Then an agent delivers the work product.
+## Frame 3 (frame 3)
+    Cool. A cemetery of links nobody will ever open.
 
-## Frame 5
-Japan trip. Client deck. Agency pipeline. The product knows what matters to you right now and ranks everything against it.
+## Frame 4 (frame 4)
+    What if it read every tab, then did the work?
 
-## Frame 6
-From tab chaos to work done. Tab to Work.
+## Frame 5 (frame 5)
+    One click. Eighty nine tabs gone. Shortlist ready.
+
+## Frame 6 (frame 6)
+    Your boss thinks you're organized. Don't mention the agent.
+
+## Frame 7 (frame 7)
+    Tab to Work. Chaos to done.

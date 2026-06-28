@@ -1,53 +1,39 @@
----
-arc: concept-explainer
-angle: product-concept
-length: 55s
-aspect: 16:9
-language: en
-music: focused-tech
-VO_MODE: narration
----
+# Tab-to-Work Explainer — Storyboard (v3 + audio)
 
-# Tab-to-Work Explainer
+Portrait 1080×1920. Voice-driven pacing via `npm run audio`.
 
-## Frame 1 — hook
-- type: typography
-- duration: 8s
-- transition_in: cut
-- scene: Chaotic tab counter overwhelms a calm grid field
-- voiceover: Forty-seven tabs open. Again. You know the feeling.
+## Frame 1 — Chaos
+duration: auto (voice + pad)
+sfx: whoosh at scene end (tab suck)
+music: bgm
+Visual: Phone with 89 tabs, flying tabs, stressed character. Text: YOUR PHONE / IS DROWNING.
 
-## Frame 2 — problem
-- type: diagram
-- duration: 10s
-- transition_in: fade
-- scene: URL list vs empty content boxes
-- voiceover: OneTab saves your links. Tab Space names your sessions. But neither tells you what was actually on those pages.
+## Frame 2 — OneTab suck
+duration: auto
+sfx: impact on laptop slam
+Visual: Laptop with saved URL list. Text: Tabs gone. / Brain still fried.
 
-## Frame 3 — thesis
-- type: typography
-- duration: 10s
-- transition_in: fade
-- scene: Shift from URLs to intent word
-- voiceover: The next evolution is not better bookmarking. It is context. What you were working on. What you decided. What still needs doing.
+## Frame 3 — Cemetery
+duration: auto
+sfx: glitch on tombstones
+Visual: Tombstones inside phone. Text: A cemetery / of links.
 
-## Frame 4 — how
-- type: process
-- duration: 12s
-- transition_in: fade
-- scene: Three-step pipeline save summarize execute
-- voiceover: Tab to Work. One click saves and closes. Every tab gets a summary. Your active goals organize the session. Then an agent delivers the work product.
+## Frame 4 — Agent scan
+duration: auto
+sfx: chime when orb awakens
+Visual: Scan line, green agent orb. Text: It read / every tab. / Then did the work.
 
-## Frame 5 — goals
-- type: data-viz
-- duration: 10s
-- transition_in: fade
-- scene: Goal tags routing tabs
-- voiceover: Japan trip. Client deck. Agency pipeline. The product knows what matters to you right now and ranks everything against it.
+## Frame 5 — One click
+duration: auto
+sfx: click on tap, pop on result
+Visual: Finger tap, tabs explode, result card. Text: 89 tabs → gone.
 
-## Frame 6 — cta
-- type: typography
-- duration: 5s
-- transition_in: fade
-- scene: Logo lockup and tagline
-- voiceover: From tab chaos to work done. Tab to Work.
+## Frame 6 — Boss kicker
+duration: auto
+sfx: pop
+Visual: Calm character + boss thumbs up. Text: Boss thinks you're organized.
+
+## Frame 7 — CTA
+duration: auto
+sfx: impact on title slam
+Visual: Tab to Work logo + phone. Text: chaos → done
