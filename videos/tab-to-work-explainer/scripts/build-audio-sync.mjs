@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generate voice (macOS say), SFX (ffmpeg), BGM, audio_meta.json,
+ * Generate voice (edge-tts neural TTS), tech BGM (ffmpeg), SFX, audio_meta.json,
  * and patch index.html scene timings + GSAP + audio elements.
  */
 import { spawnSync } from "node:child_process";
@@ -13,12 +13,16 @@ import ffprobeInstaller from "@ffprobe-installer/ffprobe";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const AUDIO_DIR = join(ROOT, "assets", "audio");
+const VENV_DIR = join(ROOT, ".venv-audio");
+const EDGE_TTS = join(VENV_DIR, "bin", "edge-tts");
 const INDEX = join(ROOT, "index.html");
 const FFMPEG = ffmpegInstaller.path;
 const FFPROBE = ffprobeInstaller.path;
 
-const VOICE = "Daniel";
-const RATE = 200;
+const VOICE = "en-US-GuyNeural";
+const TTS_RATE = "+25%";
+const BGM_BPM = 118;
+const BGM_VOLUME = 0.32;
 
 const SCENES = [
   {
@@ -93,11 +97,24 @@ function probeDuration(file) {
   return parseFloat(r.stdout.trim());
 }
 
-function sayToWav(text, outWav) {
-  const aiff = outWav.replace(/\.wav$/, ".aiff");
-  run("say", ["-v", VOICE, "-r", String(RATE), "-o", aiff, text]);
-  run(FFMPEG, ["-y", "-i", aiff, "-ar", "48000", "-ac", "1", outWav]);
-  run("rm", ["-f", aiff]);
+function ensureEdgeTts() {
+  if (existsSync(EDGE_TTS)) return;
+  console.log("Bootstrapping edge-tts venv (one-time)...");
+  run("python3", ["-m", "venv", VENV_DIR]);
+  run(join(VENV_DIR, "bin", "pip"), ["install", "-q", "edge-tts"]);
+}
+
+function edgeTtsToWav(text, outWav) {
+  ensureEdgeTts();
+  const mp3 = outWav.replace(/\.wav$/, ".mp3");
+  run(EDGE_TTS, [
+    "--voice", VOICE,
+    "--rate", TTS_RATE,
+    "--text", text,
+    "--write-media", mp3,
+  ]);
+  run(FFMPEG, ["-y", "-i", mp3, "-ar", "48000", "-ac", "1", outWav]);
+  run("rm", ["-f", mp3]);
 }
 
 function synthSfx(id, outWav) {
@@ -132,14 +149,29 @@ function synthSfx(id, outWav) {
 }
 
 function synthBgm(outWav, duration) {
+  const beatS = (60 / BGM_BPM).toFixed(4);
+  const fadeOut = Math.max(0, duration - 1).toFixed(3);
+  const dur = duration.toFixed(3);
+  const noiseSrc = `anoisesrc=d=${dur}:c=pink:a=0.1`;
   run(FFMPEG, [
     "-y",
-    "-f", "lavfi", "-i", `sine=frequency=110:duration=${duration}`,
-    "-f", "lavfi", "-i", `sine=frequency=165:duration=${duration}`,
-    "-f", "lavfi", "-i", `anoisesrc=d=0.1:c=brown:a=0.15`,
+    "-f", "lavfi", "-i", `sine=frequency=82.41:duration=${dur}`,
+    "-f", "lavfi", "-i", `sine=frequency=123.47:duration=${dur}`,
+    "-f", "lavfi", "-i", `sine=frequency=164.81:duration=${dur}`,
+    "-f", "lavfi", "-i", `sine=frequency=55:duration=${dur}`,
+    "-f", "lavfi", "-i", noiseSrc,
     "-filter_complex",
-    `[0][1]amix=inputs=2:duration=first,volume=0.08[tones];[2]aloop=loop=-1:size=4800,volume=0.04[noise];[tones][noise]amix=inputs=2:duration=first,afade=t=in:st=0:d=0.5,afade=t=out:st=${Math.max(0, duration - 0.8)}:d=0.8`,
-    "-t", String(duration),
+    [
+      "[0]volume=0.1,tremolo=f=1.97:d=0.5,lowpass=f=180[b];",
+      "[1]volume=0.045[p];",
+      "[2]volume=0.025[t];",
+      `[3]volume='if(lt(mod(t\\,${beatS})\\,0.05)\\,0.35\\,0.02)':eval=frame,lowpass=f=120[k];`,
+      "[4]lowpass=f=250,volume=0.02[n];",
+      "[b][p][t][k][n]amix=inputs=5:duration=first,",
+      "highpass=f=45,",
+      "afade=t=in:st=0:d=0.7,",
+      `afade=t=out:st=${fadeOut}:d=1`,
+    ].join(""),
     "-ar", "48000", "-ac", "2",
     outWav,
   ]);
@@ -287,7 +319,7 @@ function buildAudioElements(timings, sfxTracks, totalDuration) {
     );
   }
   els.push(
-    `<audio id="bgm" src="assets/audio/bgm.wav" data-start="0" data-duration="${round(totalDuration)}" data-track-index="11" data-volume="0.35"></audio>`,
+    `<audio id="bgm" src="assets/audio/bgm.wav" data-start="0" data-duration="${round(totalDuration)}" data-track-index="11" data-volume="${BGM_VOLUME}"></audio>`,
   );
   let trackIdx = 20;
   for (const sfx of sfxTracks) {
@@ -304,7 +336,10 @@ function round(n) {
 
 function patchIndex(html, timings, totalDuration, sfxTracks) {
   let out = html;
-  out = out.replace(/data-duration="22"/, `data-duration="${round(totalDuration)}"`);
+  out = out.replace(
+    /(id="root"[^>]*data-duration=")[^"]*"/,
+    `$1${round(totalDuration)}"`,
+  );
   out = out.replace(
     /id="flash"[^>]*data-duration="[^"]*"/,
     `id="flash" class="bg-flash clip" data-start="0" data-duration="${round(totalDuration)}" data-track-index="3"`,
@@ -357,7 +392,7 @@ function main() {
 
   for (const scene of SCENES) {
     const voicePath = join(AUDIO_DIR, `voice-${String(scene.id).padStart(2, "0")}.wav`);
-    sayToWav(scene.voice, voicePath);
+    edgeTtsToWav(scene.voice, voicePath);
     const voiceDuration = probeDuration(voicePath);
     const duration = Math.max(scene.minDuration, voiceDuration + scene.padAfter);
 
@@ -390,8 +425,11 @@ function main() {
 
   const meta = {
     totalDuration,
+    ttsEngine: "edge-tts",
     voice: VOICE,
-    rate: RATE,
+    ttsRate: TTS_RATE,
+    bgmBpm: BGM_BPM,
+    bgmVolume: BGM_VOLUME,
     scenes: timings,
     sfx: sfxTracks,
     generatedAt: new Date().toISOString(),

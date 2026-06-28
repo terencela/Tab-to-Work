@@ -1,55 +1,58 @@
 {
-  "totalDuration": 20.801437,
-  "voice": "Daniel",
-  "rate": 200,
+  "totalDuration": 28.646,
+  "ttsEngine": "edge-tts",
+  "voice": "en-US-GuyNeural",
+  "ttsRate": "+25%",
+  "bgmBpm": 118,
+  "bgmVolume": 0.32,
   "scenes": [
     {
       "id": 1,
       "start": 0,
-      "voiceDuration": 2.383688,
-      "duration": 2.6,
+      "voiceDuration": 3.504,
+      "duration": 3.704,
       "voice": "Be honest. Your phone is drowning in tabs."
     },
     {
       "id": 2,
-      "start": 2.6,
-      "voiceDuration": 3.103458,
-      "duration": 3.303458,
+      "start": 3.704,
+      "voiceDuration": 4.704,
+      "duration": 4.904,
       "voice": "You hit OneTab. Tabs gone. Brain still fried."
     },
     {
       "id": 3,
-      "start": 5.9034580000000005,
-      "voiceDuration": 2.752708,
-      "duration": 2.9527080000000003,
+      "start": 8.608,
+      "voiceDuration": 3.96,
+      "duration": 4.16,
       "voice": "Cool. A cemetery of links nobody will ever open."
     },
     {
       "id": 4,
-      "start": 8.856166000000002,
-      "voiceDuration": 2.360375,
+      "start": 12.768,
+      "voiceDuration": 2.688,
       "duration": 3.2,
       "voice": "What if it read every tab, then did the work?"
     },
     {
       "id": 5,
-      "start": 12.056166000000001,
-      "voiceDuration": 3.161458,
-      "duration": 3.411458,
+      "start": 15.968,
+      "voiceDuration": 4.848,
+      "duration": 5.098,
       "voice": "One click. Eighty nine tabs gone. Shortlist ready."
     },
     {
       "id": 6,
-      "start": 15.467624,
-      "voiceDuration": 3.022417,
-      "duration": 3.222417,
+      "start": 21.066,
+      "voiceDuration": 3.984,
+      "duration": 4.184,
       "voice": "Your boss thinks you're organized. Don't mention the agent."
     },
     {
       "id": 7,
-      "start": 18.690041,
-      "voiceDuration": 1.811396,
-      "duration": 2.111396,
+      "start": 25.25,
+      "voiceDuration": 3.096,
+      "duration": 3.396,
       "voice": "Tab to Work. Chaos to done."
     }
   ],
@@ -64,52 +67,52 @@
     {
       "id": "02",
       "type": "impact",
-      "start": 2.95,
+      "start": 4.054,
       "duration": 0.25,
       "volume": 0.9
     },
     {
       "id": "03",
       "type": "glitch",
-      "start": 6.4034580000000005,
+      "start": 9.108,
       "duration": 0.12,
       "volume": 0.75
     },
     {
       "id": "04",
       "type": "chime",
-      "start": 10.856166000000002,
+      "start": 14.768,
       "duration": 0.2,
       "volume": 0.75
     },
     {
       "id": "05",
       "type": "click",
-      "start": 13.256166,
+      "start": 17.168,
       "duration": 0.04,
       "volume": 0.75
     },
     {
       "id": "06",
       "type": "pop",
-      "start": 13.406166,
+      "start": 17.318,
       "duration": 0.08,
       "volume": 0.75
     },
     {
       "id": "07",
       "type": "pop",
-      "start": 15.767624000000001,
+      "start": 21.366,
       "duration": 0.08,
       "volume": 0.75
     },
     {
       "id": "08",
       "type": "impact",
-      "start": 18.840041,
+      "start": 25.4,
       "duration": 0.25,
       "volume": 0.9
     }
   ],
-  "generatedAt": "2026-06-28T11:29:30.176Z"
+  "generatedAt": "2026-06-28T11:35:24.703Z"
 }

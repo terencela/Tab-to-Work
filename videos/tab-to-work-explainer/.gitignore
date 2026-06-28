@@ -1,2 +1,3 @@
 node_modules/
 .hyperframes/cache/
+.venv-audio/

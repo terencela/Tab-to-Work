@@ -11,7 +11,7 @@ npm run dev
 
 ## Audio sync
 
-Regenerates voice (macOS `say`), SFX, BGM, retimes scenes + GSAP to measured durations:
+Regenerates neural voice (Microsoft edge-tts), upbeat tech BGM at 118 BPM, SFX, retimes scenes + GSAP. First run bootstraps a local Python venv automatically.
 
 ```bash
 npm run audio
