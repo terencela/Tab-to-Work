@@ -18,7 +18,7 @@ const env = {
 
 const result = spawnSync(
   "npx",
-  ["--yes", "hyperframes@0.7.15", "render", "-o", "renders/video.mp4"],
+  ["--yes", "hyperframes@0.7.15", "render", "-o", "renders/video.mp4", "--resolution", "portrait"],
   {
     cwd: projectDir,
     env,
