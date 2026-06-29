@@ -20,7 +20,9 @@ const FFMPEG = ffmpegInstaller.path;
 const FFPROBE = ffprobeInstaller.path;
 
 const VOICE = "en-US-GuyNeural";
-const TTS_RATE = "+25%";
+const TTS_RATE = "-5%";
+/** Silence between voice lines (seconds). Keep tight to avoid dead air. */
+const VOICE_GAP = 0.1;
 const BGM_BPM = 120;
 const BGM_VOLUME = 0.28;
 const SFX_LIB = join(process.env.HOME, ".agents/skills/hyperframes-media/assets/sfx");
@@ -41,54 +43,40 @@ const SCENES = [
   {
     id: 1,
     voice: "Be honest. Your phone is drowning in tabs.",
-    minDuration: 2.6,
-    padAfter: 0.2,
-    sfx: [{ id: "whoosh-short", atLocal: 2.45 }],
+    sfx: [{ id: "whoosh-short", when: "preEnd", offset: -0.08 }],
   },
   {
     id: 2,
     voice: "You hit OneTab. Tabs gone. Brain still fried.",
-    minDuration: 2.8,
-    padAfter: 0.2,
-    sfx: [{ id: "impact-bass-1", atLocal: 0.35 }],
+    sfx: [{ id: "impact-bass-1", when: "start", offset: 0.32 }],
   },
   {
     id: 3,
     voice: "Cool. A cemetery of links nobody will ever open.",
-    minDuration: 2.8,
-    padAfter: 0.2,
-    sfx: [{ id: "glitch-1", atLocal: 0.5 }],
+    sfx: [{ id: "glitch-1", when: "start", offset: 0.42 }],
   },
   {
     id: 4,
     voice: "What if it read every tab, then did the work?",
-    minDuration: 3.2,
-    padAfter: 0.25,
-    sfx: [{ id: "sparkle", atLocal: 2.0 }],
+    sfx: [{ id: "sparkle", when: "fraction", value: 0.78 }],
   },
   {
     id: 5,
     voice: "One click. Eighty nine tabs gone. Shortlist ready.",
-    minDuration: 3.4,
-    padAfter: 0.25,
     sfx: [
-      { id: "click", atLocal: 1.2 },
-      { id: "pop", atLocal: 1.35 },
+      { id: "click", when: "fraction", value: 0.22 },
+      { id: "pop", when: "fraction", value: 0.38 },
     ],
   },
   {
     id: 6,
     voice: "Your boss thinks you're organized. Don't mention the agent.",
-    minDuration: 3.0,
-    padAfter: 0.2,
-    sfx: [{ id: "notification", atLocal: 0.3 }],
+    sfx: [{ id: "notification", when: "start", offset: 0.28 }],
   },
   {
     id: 7,
     voice: "Tab to Work. Chaos to done.",
-    minDuration: 2.0,
-    padAfter: 0.3,
-    sfx: [{ id: "impact-bass-2", atLocal: 0.15 }],
+    sfx: [{ id: "impact-bass-2", when: "start", offset: 0.12 }],
   },
 ];
 
@@ -120,14 +108,37 @@ function ensureEdgeTts() {
 function edgeTtsToWav(text, outWav) {
   ensureEdgeTts();
   const mp3 = outWav.replace(/\.wav$/, ".mp3");
+  const rawWav = outWav.replace(/\.wav$/, ".raw.wav");
   run(EDGE_TTS, [
     "--voice", VOICE,
-    "--rate", TTS_RATE,
+    `--rate=${TTS_RATE}`,
     "--text", text,
     "--write-media", mp3,
   ]);
-  run(FFMPEG, ["-y", "-i", mp3, "-ar", "48000", "-ac", "1", outWav]);
+  run(FFMPEG, ["-y", "-i", mp3, "-ar", "48000", "-ac", "1", rawWav]);
   run("rm", ["-f", mp3]);
+  // Trim TTS trailing/leading silence so scene gaps stay tight.
+  run(FFMPEG, [
+    "-y", "-i", rawWav,
+    "-af",
+    "silenceremove=start_periods=1:start_duration=0.04:start_threshold=-42dB:detection=peak,"
+    + "silenceremove=stop_periods=-1:stop_duration=0.14:stop_threshold=-42dB:detection=peak,"
+    + "apad=pad_dur=0.03",
+    "-ar", "48000", "-ac", "1",
+    outWav,
+  ]);
+  run("rm", ["-f", rawWav]);
+}
+
+/**
+ * @param {{ when?: string, offset?: number, value?: number, atLocal?: number }} fx
+ * @param {number} voiceDuration
+ */
+function resolveSfxLocalTime(fx, voiceDuration) {
+  if (fx.when === "preEnd") return Math.max(0, voiceDuration + (fx.offset ?? -0.1));
+  if (fx.when === "start") return fx.offset ?? 0.3;
+  if (fx.when === "fraction") return voiceDuration * (fx.value ?? 0.5);
+  return fx.atLocal ?? 0;
 }
 
 function prepareSfx(id) {
@@ -286,7 +297,8 @@ function buildTimeline(timings) {
 
   const s5 = w(5).start;
   const d5 = w(5).duration;
-  const tap = s5 + 1.1;
+  const v5 = w(5).voiceDuration;
+  const tap = s5 + v5 * 0.24;
   lines.push(`      // SCENE 5`);
   lines.push(`      tl.from("#s5-phone", { opacity: 0, y: 100, duration: 0.25 }, ${s5 + 0.05})`);
   lines.push(`        .from("#s5-kicker", { opacity: 0, duration: snap }, ${s5 + 0.1})`);
@@ -408,7 +420,7 @@ function main() {
     const voicePath = join(AUDIO_DIR, `voice-${String(scene.id).padStart(2, "0")}.wav`);
     edgeTtsToWav(scene.voice, voicePath);
     const voiceDuration = probeDuration(voicePath);
-    const duration = Math.max(scene.minDuration, voiceDuration + scene.padAfter);
+    const duration = voiceDuration + VOICE_GAP;
 
     timings.push({
       id: scene.id,
@@ -416,16 +428,17 @@ function main() {
       voiceDuration,
       duration,
       voice: scene.voice,
+      gapAfter: duration - voiceDuration,
     });
 
     for (const fx of scene.sfx) {
       const spec = SFX_CATALOG[fx.id];
-      const sfxPath = join(AUDIO_DIR, `sfx-${fx.id}.wav`);
-      const sfxDur = probeDuration(sfxPath);
+      const atLocal = resolveSfxLocalTime(fx, voiceDuration);
+      const sfxDur = probeDuration(join(AUDIO_DIR, `sfx-${fx.id}.wav`));
       sfxTracks.push({
         id: String(++sfxCounter).padStart(2, "0"),
         type: fx.id,
-        start: cursor + fx.atLocal,
+        start: cursor + atLocal,
         duration: sfxDur,
         volume: spec.volume,
       });
@@ -443,6 +456,7 @@ function main() {
     ttsEngine: "edge-tts",
     voice: VOICE,
     ttsRate: TTS_RATE,
+    voiceGap: VOICE_GAP,
     sfxSource: "hyperframes-media/pixabay",
     bgmBpm: BGM_BPM,
     bgmVolume: BGM_VOLUME,
@@ -457,7 +471,10 @@ function main() {
 
   console.log(`Audio sync complete: ${totalDuration.toFixed(2)}s total`);
   for (const t of timings) {
-    console.log(`  Scene ${t.id}: start=${t.start.toFixed(2)}s dur=${t.duration.toFixed(2)}s voice=${t.voiceDuration.toFixed(2)}s`);
+    console.log(
+      `  Scene ${t.id}: start=${t.start.toFixed(2)}s dur=${t.duration.toFixed(2)}s `
+      + `voice=${t.voiceDuration.toFixed(2)}s gap=${t.gapAfter.toFixed(2)}s`,
+    );
   }
 }
 

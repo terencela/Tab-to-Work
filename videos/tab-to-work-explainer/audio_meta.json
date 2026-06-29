@@ -1,8 +1,9 @@
 {
-  "totalDuration": 28.646,
+  "totalDuration": 20.140042,
   "ttsEngine": "edge-tts",
   "voice": "en-US-GuyNeural",
-  "ttsRate": "+25%",
+  "ttsRate": "-5%",
+  "voiceGap": 0.1,
   "sfxSource": "hyperframes-media/pixabay",
   "bgmBpm": 120,
   "bgmVolume": 0.28,
@@ -10,110 +11,117 @@
     {
       "id": 1,
       "start": 0,
-      "voiceDuration": 3.504,
-      "duration": 3.704,
-      "voice": "Be honest. Your phone is drowning in tabs."
+      "voiceDuration": 2.41575,
+      "duration": 2.51575,
+      "voice": "Be honest. Your phone is drowning in tabs.",
+      "gapAfter": 0.10000000000000009
     },
     {
       "id": 2,
-      "start": 3.704,
-      "voiceDuration": 4.704,
-      "duration": 4.904,
-      "voice": "You hit OneTab. Tabs gone. Brain still fried."
+      "start": 2.51575,
+      "voiceDuration": 3.180875,
+      "duration": 3.280875,
+      "voice": "You hit OneTab. Tabs gone. Brain still fried.",
+      "gapAfter": 0.10000000000000009
     },
     {
       "id": 3,
-      "start": 8.608,
-      "voiceDuration": 3.96,
-      "duration": 4.16,
-      "voice": "Cool. A cemetery of links nobody will ever open."
+      "start": 5.796625000000001,
+      "voiceDuration": 3.185063,
+      "duration": 3.285063,
+      "voice": "Cool. A cemetery of links nobody will ever open.",
+      "gapAfter": 0.10000000000000009
     },
     {
       "id": 4,
-      "start": 12.768,
-      "voiceDuration": 2.688,
-      "duration": 3.2,
-      "voice": "What if it read every tab, then did the work?"
+      "start": 9.081688,
+      "voiceDuration": 2.223604,
+      "duration": 2.323604,
+      "voice": "What if it read every tab, then did the work?",
+      "gapAfter": 0.10000000000000009
     },
     {
       "id": 5,
-      "start": 15.968,
-      "voiceDuration": 4.848,
-      "duration": 5.098,
-      "voice": "One click. Eighty nine tabs gone. Shortlist ready."
+      "start": 11.405292,
+      "voiceDuration": 3.270625,
+      "duration": 3.370625,
+      "voice": "One click. Eighty nine tabs gone. Shortlist ready.",
+      "gapAfter": 0.10000000000000009
     },
     {
       "id": 6,
-      "start": 21.066,
-      "voiceDuration": 3.984,
-      "duration": 4.184,
-      "voice": "Your boss thinks you're organized. Don't mention the agent."
+      "start": 14.775917,
+      "voiceDuration": 3.172917,
+      "duration": 3.272917,
+      "voice": "Your boss thinks you're organized. Don't mention the agent.",
+      "gapAfter": 0.10000000000000009
     },
     {
       "id": 7,
-      "start": 25.25,
-      "voiceDuration": 3.096,
-      "duration": 3.396,
-      "voice": "Tab to Work. Chaos to done."
+      "start": 18.048834,
+      "voiceDuration": 1.991208,
+      "duration": 2.091208,
+      "voice": "Tab to Work. Chaos to done.",
+      "gapAfter": 0.09999999999999987
     }
   ],
   "sfx": [
     {
       "id": "01",
       "type": "whoosh-short",
-      "start": 2.45,
+      "start": 2.33575,
       "duration": 0.55,
       "volume": 0.9
     },
     {
       "id": "02",
       "type": "impact-bass-1",
-      "start": 4.054,
+      "start": 2.83575,
       "duration": 0.72,
       "volume": 0.95
     },
     {
       "id": "03",
       "type": "glitch-1",
-      "start": 9.108,
+      "start": 6.2166250000000005,
       "duration": 0.48,
       "volume": 0.85
     },
     {
       "id": "04",
       "type": "sparkle",
-      "start": 14.768,
+      "start": 10.81609912,
       "duration": 1.15,
       "volume": 0.8
     },
     {
       "id": "05",
       "type": "click",
-      "start": 17.168,
+      "start": 12.124829499999999,
       "duration": 0.35,
       "volume": 0.95
     },
     {
       "id": "06",
       "type": "pop",
-      "start": 17.318,
+      "start": 12.6481295,
       "duration": 0.68,
       "volume": 0.85
     },
     {
       "id": "07",
       "type": "notification",
-      "start": 21.366,
+      "start": 15.055916999999999,
       "duration": 0.95,
       "volume": 0.78
     },
     {
       "id": "08",
       "type": "impact-bass-2",
-      "start": 25.4,
+      "start": 18.168834,
       "duration": 0.88,
       "volume": 0.95
     }
   ],
-  "generatedAt": "2026-06-28T14:35:00.719Z"
+  "generatedAt": "2026-06-29T21:12:46.870Z"
 }
