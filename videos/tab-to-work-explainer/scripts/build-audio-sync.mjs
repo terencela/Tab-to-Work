@@ -19,8 +19,9 @@ const INDEX = join(ROOT, "index.html");
 const FFMPEG = ffmpegInstaller.path;
 const FFPROBE = ffprobeInstaller.path;
 
-const VOICE = "en-US-GuyNeural";
-const TTS_RATE = "-5%";
+const VOICE = "en-US-ChristopherNeural";
+const TTS_RATE = "+0%";
+const TTS_PITCH = "-1Hz";
 /** Silence between voice lines (seconds). Keep tight to avoid dead air. */
 const VOICE_GAP = 0.1;
 const BGM_BPM = 120;
@@ -105,6 +106,26 @@ function ensureEdgeTts() {
   run(join(VENV_DIR, "bin", "pip"), ["install", "-q", "edge-tts"]);
 }
 
+function polishVoiceWav(rawWav, outWav) {
+  run(FFMPEG, [
+    "-y", "-i", rawWav,
+    "-af",
+    [
+      "silenceremove=start_periods=1:start_duration=0.04:start_threshold=-42dB:detection=peak",
+      "silenceremove=stop_periods=-1:stop_duration=0.12:stop_threshold=-42dB:detection=peak",
+      "highpass=f=85",
+      "lowpass=f=11500",
+      "equalizer=f=220:width_type=o:width=1:g=1.8",
+      "equalizer=f=3200:width_type=o:width=1.2:g=-2",
+      "acompressor=threshold=-20dB:ratio=2.4:attack=18:release=220:makeup=1.5",
+      "alimiter=limit=0.9:level=false",
+      "apad=pad_dur=0.03",
+    ].join(","),
+    "-ar", "48000", "-ac", "1",
+    outWav,
+  ]);
+}
+
 function edgeTtsToWav(text, outWav) {
   ensureEdgeTts();
   const mp3 = outWav.replace(/\.wav$/, ".mp3");
@@ -112,21 +133,13 @@ function edgeTtsToWav(text, outWav) {
   run(EDGE_TTS, [
     "--voice", VOICE,
     `--rate=${TTS_RATE}`,
+    `--pitch=${TTS_PITCH}`,
     "--text", text,
     "--write-media", mp3,
   ]);
   run(FFMPEG, ["-y", "-i", mp3, "-ar", "48000", "-ac", "1", rawWav]);
   run("rm", ["-f", mp3]);
-  // Trim TTS trailing/leading silence so scene gaps stay tight.
-  run(FFMPEG, [
-    "-y", "-i", rawWav,
-    "-af",
-    "silenceremove=start_periods=1:start_duration=0.04:start_threshold=-42dB:detection=peak,"
-    + "silenceremove=stop_periods=-1:stop_duration=0.14:stop_threshold=-42dB:detection=peak,"
-    + "apad=pad_dur=0.03",
-    "-ar", "48000", "-ac", "1",
-    outWav,
-  ]);
+  polishVoiceWav(rawWav, outWav);
   run("rm", ["-f", rawWav]);
 }
 
@@ -456,6 +469,7 @@ function main() {
     ttsEngine: "edge-tts",
     voice: VOICE,
     ttsRate: TTS_RATE,
+    ttsPitch: TTS_PITCH,
     voiceGap: VOICE_GAP,
     sfxSource: "hyperframes-media/pixabay",
     bgmBpm: BGM_BPM,

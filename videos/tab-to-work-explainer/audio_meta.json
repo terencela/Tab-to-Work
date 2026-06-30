@@ -1,8 +1,9 @@
 {
-  "totalDuration": 20.140042,
+  "totalDuration": 18.905125,
   "ttsEngine": "edge-tts",
-  "voice": "en-US-GuyNeural",
-  "ttsRate": "-5%",
+  "voice": "en-US-ChristopherNeural",
+  "ttsRate": "+0%",
+  "ttsPitch": "-1Hz",
   "voiceGap": 0.1,
   "sfxSource": "hyperframes-media/pixabay",
   "bgmBpm": 120,
@@ -11,117 +12,117 @@
     {
       "id": 1,
       "start": 0,
-      "voiceDuration": 2.41575,
-      "duration": 2.51575,
+      "voiceDuration": 2.638021,
+      "duration": 2.7380210000000003,
       "voice": "Be honest. Your phone is drowning in tabs.",
       "gapAfter": 0.10000000000000009
     },
     {
       "id": 2,
-      "start": 2.51575,
-      "voiceDuration": 3.180875,
-      "duration": 3.280875,
+      "start": 2.7380210000000003,
+      "voiceDuration": 2.988292,
+      "duration": 3.088292,
       "voice": "You hit OneTab. Tabs gone. Brain still fried.",
       "gapAfter": 0.10000000000000009
     },
     {
       "id": 3,
-      "start": 5.796625000000001,
-      "voiceDuration": 3.185063,
-      "duration": 3.285063,
+      "start": 5.826313000000001,
+      "voiceDuration": 3.004729,
+      "duration": 3.1047290000000003,
       "voice": "Cool. A cemetery of links nobody will ever open.",
       "gapAfter": 0.10000000000000009
     },
     {
       "id": 4,
-      "start": 9.081688,
-      "voiceDuration": 2.223604,
-      "duration": 2.323604,
+      "start": 8.931042000000001,
+      "voiceDuration": 2.026854,
+      "duration": 2.1268540000000002,
       "voice": "What if it read every tab, then did the work?",
       "gapAfter": 0.10000000000000009
     },
     {
       "id": 5,
-      "start": 11.405292,
-      "voiceDuration": 3.270625,
-      "duration": 3.370625,
+      "start": 11.057896000000001,
+      "voiceDuration": 3.017979,
+      "duration": 3.117979,
       "voice": "One click. Eighty nine tabs gone. Shortlist ready.",
       "gapAfter": 0.10000000000000009
     },
     {
       "id": 6,
-      "start": 14.775917,
-      "voiceDuration": 3.172917,
-      "duration": 3.272917,
+      "start": 14.175875000000001,
+      "voiceDuration": 2.88225,
+      "duration": 2.98225,
       "voice": "Your boss thinks you're organized. Don't mention the agent.",
       "gapAfter": 0.10000000000000009
     },
     {
       "id": 7,
-      "start": 18.048834,
-      "voiceDuration": 1.991208,
-      "duration": 2.091208,
+      "start": 17.158125000000002,
+      "voiceDuration": 1.647,
+      "duration": 1.747,
       "voice": "Tab to Work. Chaos to done.",
-      "gapAfter": 0.09999999999999987
+      "gapAfter": 0.10000000000000009
     }
   ],
   "sfx": [
     {
       "id": "01",
       "type": "whoosh-short",
-      "start": 2.33575,
+      "start": 2.558021,
       "duration": 0.55,
       "volume": 0.9
     },
     {
       "id": "02",
       "type": "impact-bass-1",
-      "start": 2.83575,
+      "start": 3.058021,
       "duration": 0.72,
       "volume": 0.95
     },
     {
       "id": "03",
       "type": "glitch-1",
-      "start": 6.2166250000000005,
+      "start": 6.246313000000001,
       "duration": 0.48,
       "volume": 0.85
     },
     {
       "id": "04",
       "type": "sparkle",
-      "start": 10.81609912,
+      "start": 10.511988120000002,
       "duration": 1.15,
       "volume": 0.8
     },
     {
       "id": "05",
       "type": "click",
-      "start": 12.124829499999999,
+      "start": 11.72185138,
       "duration": 0.35,
       "volume": 0.95
     },
     {
       "id": "06",
       "type": "pop",
-      "start": 12.6481295,
+      "start": 12.204728020000001,
       "duration": 0.68,
       "volume": 0.85
     },
     {
       "id": "07",
       "type": "notification",
-      "start": 15.055916999999999,
+      "start": 14.455875,
       "duration": 0.95,
       "volume": 0.78
     },
     {
       "id": "08",
       "type": "impact-bass-2",
-      "start": 18.168834,
+      "start": 17.278125000000003,
       "duration": 0.88,
       "volume": 0.95
     }
   ],
-  "generatedAt": "2026-06-29T21:12:46.870Z"
+  "generatedAt": "2026-06-30T14:48:42.791Z"
 }
