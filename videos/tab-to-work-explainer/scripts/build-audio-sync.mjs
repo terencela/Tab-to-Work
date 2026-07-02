@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generate voice (edge-tts neural TTS), tech BGM (ffmpeg), SFX, audio_meta.json,
+ * Generate voice (edge-tts neural TTS), licensed BGM bed, SFX, audio_meta.json,
  * and patch index.html scene timings + GSAP + audio elements.
  */
 import { spawnSync } from "node:child_process";
@@ -24,8 +24,15 @@ const TTS_RATE = "+0%";
 const TTS_PITCH = "-1Hz";
 /** Silence between voice lines (seconds). Keep tight to avoid dead air. */
 const VOICE_GAP = 0.1;
-const BGM_BPM = 120;
-const BGM_VOLUME = 0.28;
+const BGM_SOURCE = join(AUDIO_DIR, "bgm-source.mp3");
+const BGM_TRACK = {
+  title: "PlaceIt World 01",
+  artist: "Lily J",
+  genre: "Corporate",
+  license: "Mixkit Free Music License",
+  url: "https://mixkit.co/free-stock-music/instrumental/724/",
+};
+const BGM_VOLUME = 0.24;
 const SFX_LIB = join(process.env.HOME, ".agents/skills/hyperframes-media/assets/sfx");
 
 /** Pixabay SFX bundled with hyperframes-media — trimmed on import. */
@@ -174,45 +181,27 @@ function prepareSfx(id) {
   return outWav;
 }
 
-function synthBgmLoop(outWav, loopDur = 8) {
-  const beatS = (60 / BGM_BPM).toFixed(4);
-  const noiseSrc = `anoisesrc=d=${loopDur}:c=pink:a=0.08`;
-  run(FFMPEG, [
-    "-y",
-    "-f", "lavfi", "-i", `sine=frequency=82.41:duration=${loopDur}`,
-    "-f", "lavfi", "-i", `sine=frequency=98:duration=${loopDur}`,
-    "-f", "lavfi", "-i", `sine=frequency=123.47:duration=${loopDur}`,
-    "-f", "lavfi", "-i", `sine=frequency=164.81:duration=${loopDur}`,
-    "-f", "lavfi", "-i", `sine=frequency=55:duration=${loopDur}`,
-    "-f", "lavfi", "-i", noiseSrc,
-    "-filter_complex",
-    [
-      "[0]volume=0.09,lowpass=f=150[bass];",
-      "[1]volume=0.04[fif];",
-      "[2]volume=0.035,tremolo=f=0.25:d=0.35[p];",
-      "[3]volume=0.022[t];",
-      `[4]volume='if(lt(mod(t\\,${beatS})\\,0.045)\\,0.42\\,0.03)':eval=frame,lowpass=f=110[k];`,
-      "[5]lowpass=f=280,volume=0.018[n];",
-      "[bass][fif][p][t][k][n]amix=inputs=6:duration=first,",
-      "highpass=f=42,lowpass=f=10000,",
-      "acompressor=threshold=-20dB:ratio=2.5:attack=8:release=120",
-    ].join(""),
-    "-ar", "48000", "-ac", "2",
-    outWav,
-  ]);
-}
-
-function synthBgm(outWav, duration) {
-  const loopPath = join(AUDIO_DIR, "bgm-loop.wav");
-  synthBgmLoop(loopPath, 8);
-  const fadeOut = Math.max(0, duration - 1).toFixed(3);
+function prepareBgm(outWav, duration) {
+  if (!existsSync(BGM_SOURCE)) {
+    throw new Error(`Missing BGM source: ${BGM_SOURCE}`);
+  }
+  const fadeOut = Math.max(0, duration - 1.4).toFixed(3);
   const dur = duration.toFixed(3);
   run(FFMPEG, [
     "-y",
     "-stream_loop", "-1",
-    "-i", loopPath,
+    "-i", BGM_SOURCE,
     "-t", dur,
-    "-af", `afade=t=in:st=0:d=0.6,afade=t=out:st=${fadeOut}:d=1.2,volume=0.62`,
+    "-af",
+    [
+      "highpass=f=110",
+      "lowpass=f=13500",
+      "equalizer=f=280:width_type=o:width=1:g=-1.5",
+      "acompressor=threshold=-20dB:ratio=2.2:attack=25:release=280:makeup=1",
+      "afade=t=in:st=0:d=0.9",
+      `afade=t=out:st=${fadeOut}:d=1.4`,
+      "volume=0.34",
+    ].join(","),
     "-ar", "48000", "-ac", "2",
     outWav,
   ]);
@@ -462,7 +451,7 @@ function main() {
 
   const totalDuration = cursor;
   const bgmPath = join(AUDIO_DIR, "bgm.wav");
-  synthBgm(bgmPath, totalDuration);
+  prepareBgm(bgmPath, totalDuration);
 
   const meta = {
     totalDuration,
@@ -472,7 +461,8 @@ function main() {
     ttsPitch: TTS_PITCH,
     voiceGap: VOICE_GAP,
     sfxSource: "hyperframes-media/pixabay",
-    bgmBpm: BGM_BPM,
+    bgmSource: "mixkit",
+    bgmTrack: BGM_TRACK,
     bgmVolume: BGM_VOLUME,
     scenes: timings,
     sfx: sfxTracks,

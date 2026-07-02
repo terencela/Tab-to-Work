@@ -6,8 +6,15 @@
   "ttsPitch": "-1Hz",
   "voiceGap": 0.1,
   "sfxSource": "hyperframes-media/pixabay",
-  "bgmBpm": 120,
-  "bgmVolume": 0.28,
+  "bgmSource": "mixkit",
+  "bgmTrack": {
+    "title": "PlaceIt World 01",
+    "artist": "Lily J",
+    "genre": "Corporate",
+    "license": "Mixkit Free Music License",
+    "url": "https://mixkit.co/free-stock-music/instrumental/724/"
+  },
+  "bgmVolume": 0.24,
   "scenes": [
     {
       "id": 1,
@@ -124,5 +131,5 @@
       "volume": 0.95
     }
   ],
-  "generatedAt": "2026-06-30T14:48:42.791Z"
+  "generatedAt": "2026-07-02T09:57:29.446Z"
 }

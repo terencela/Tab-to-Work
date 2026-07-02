@@ -11,7 +11,7 @@ npm run dev
 
 ## Audio sync
 
-Regenerates neural voice (Microsoft edge-tts), upbeat tech BGM at 118 BPM, SFX, retimes scenes + GSAP. First run bootstraps a local Python venv automatically.
+Regenerates neural voice (Microsoft edge-tts), Mixkit corporate BGM bed, SFX, retimes scenes + GSAP. First run bootstraps a local Python venv automatically.
 
 ```bash
 npm run audio
